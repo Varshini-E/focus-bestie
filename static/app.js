@@ -210,11 +210,11 @@ function onSalvageToggle(enabled) {
       generatePlan();
     }
   } else {
-    // Restore previous full plan if we have one
+    // Restore previous full plan and snap to current time
     if (preSalvagePlan) {
       renderPlan(preSalvagePlan);
       preSalvagePlan = null;
-      setStatus("Restored your previous plan.");
+      replanNow();
     }
   }
 }
@@ -535,6 +535,13 @@ window.addEventListener("DOMContentLoaded", () => {
   // Set default date to today
   $("planDate").value = todayISO();
   onDateChange();
+
+  // Restore saved task list
+  const savedTasks = localStorage.getItem("anchor_tasks");
+  if (savedTasks) $("tasks").value = savedTasks;
+  $("tasks").addEventListener("input", () => {
+    localStorage.setItem("anchor_tasks", $("tasks").value);
+  });
 
   // Wire up events
   $("planBtn").addEventListener("click", generatePlan);

@@ -6,7 +6,7 @@ from datetime import datetime
 from mistralai import Mistral
 
 client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
-MODEL = "ministral-13b-latest"
+MODEL = "ministral-14b-latest"
 
 # ── Tool definition ────────────────────────────────────────────────────────────
 TOOLS = [

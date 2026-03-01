@@ -18,6 +18,7 @@ let timerRunning            = false;
 let timerExpired            = false;
 let timerInterval           = null;
 let timerAutoStarted        = false;
+let timerStartedAt          = null;   // wall-clock Date.now() when timer last started
 let sessionTimeSpentMinutes = null;
 let awaitingSessionEndReply = false;  // true after timer ends, coach asked "what did you do?"
 let hadTimerEndConvo        = false;  // true after user replied to the session-end question
@@ -246,6 +247,16 @@ async function fetchInitiation() {
   return res.json();
 }
 
+async function fetchInitiationEnd() {
+  const res = await fetch("/api/voice/initiate_end", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation, block }),
+  });
+  if (!res.ok) throw new Error((await res.json()).detail || "Initiation end failed");
+  return res.json();
+}
+
 async function fetchReplan(summary) {
   // Include previous sessions' history (current session is passed explicitly below)
   const dayLog = JSON.parse(sessionStorage.getItem("dayLog") || "[]");
@@ -317,7 +328,8 @@ function initTimer() {
 
 function startTimer() {
   if (timerRunning || timerRemaining <= 0) return;
-  timerRunning = true;
+  timerRunning   = true;
+  timerStartedAt = Date.now();
   updateTimerBtns();
   $("timer-display").classList.add("running");
   $("timer-display").classList.remove("done");
@@ -339,10 +351,11 @@ function startTimer() {
 }
 
 function endTimer() {
-  // User manually clicked "End" — compute exact time spent
+  // User manually clicked "End" — compute exact time spent from wall clock
   if (!timerRunning) return;
-  const elapsed = timerTotal - timerRemaining;
-  const timeSpentMins = Math.max(Math.round(elapsed / 60), 0);
+  const timeSpentMins = timerStartedAt
+    ? Math.max(Math.round((Date.now() - timerStartedAt) / 60000), 0)
+    : Math.max(Math.round((timerTotal - timerRemaining) / 60), 0);
   clearInterval(timerInterval);
   timerRunning = false;
   timerExpired = true;
@@ -362,6 +375,7 @@ function resetTimer() {
   timerRemaining   = timerTotal;
   timerExpired     = false;
   timerAutoStarted = false;
+  timerStartedAt   = null;
   $("timer-display").classList.remove("done", "running");
   renderTimerDisplay();
   updateTimerBtns();
@@ -381,8 +395,12 @@ function updateTimerBtns() {
 
 // Called when timer reaches zero (naturally) or endTimer() fires
 async function onTimerEnd(timeSpentMins) {
-  // If natural expiry, full duration was spent
-  const spent = timeSpentMins ?? Math.round(timerTotal / 60);
+  // Use passed value, or wall-clock elapsed, or fall back to scheduled duration
+  const spent = timeSpentMins ?? (
+    timerStartedAt
+      ? Math.max(Math.round((Date.now() - timerStartedAt) / 60000), 0)
+      : Math.round(timerTotal / 60)
+  );
   sessionTimeSpentMinutes = spent;
   saveState();
 
@@ -539,12 +557,13 @@ async function completeAndReplan() {
   }
 }
 
-// Shift blocks that come after this block based on how much earlier/later we're finishing
+// Shift blocks that come after this block based on how much earlier/later we're finishing.
+// Snaps to the next 15-min boundary to keep the schedule aligned and avoid fractional overlap.
 function shiftRemainingBlocks() {
-  const now          = nowHHMM();
-  const nowMins      = timeToMins(now);
+  const nowMins      = timeToMins(nowHHMM());
+  const snapNowMins  = Math.ceil(nowMins / 15) * 15;  // next 15-min boundary
   const blockEndMins = timeToMins(block.end);
-  const delta        = nowMins - blockEndMins;  // positive = running late, negative = finished early
+  const delta        = snapNowMins - blockEndMins;  // positive = late, negative = early
 
   const updatedBlocks = (currentPlan?.blocks || [])
     .filter(b => b.id !== block.id)
@@ -563,7 +582,7 @@ function saveState() {
   if (!block) return;
   sessionStorage.setItem(`sess_${block.id}`, JSON.stringify({
     conversation, timerRemaining, timerExpired, selectedEnergy, selectedLoad,
-    timerAutoStarted, sessionTimeSpentMinutes, hadTimerEndConvo,
+    timerAutoStarted, timerStartedAt, sessionTimeSpentMinutes, hadTimerEndConvo,
   }));
 }
 
@@ -646,14 +665,28 @@ async function openInitiation() {
   }
 }
 
-function onInitiationTimerEnd() {
-  // Keep overlay open — show "Nice job!" and the Continue button
-  const headingEl   = $("initiation-heading");
-  const endBtn      = $("initiation-end-btn");
-  const continueBtn = $("initiation-continue-btn");
-  if (headingEl)   headingEl.textContent     = "Nice job! ✓";
-  if (endBtn)      endBtn.style.display      = "none";
-  if (continueBtn) continueBtn.style.display = "block";
+async function onInitiationTimerEnd() {
+  const headingEl = $("initiation-heading");
+  if (headingEl) headingEl.textContent = "Nice job! ✓";
+  // Hide the "go back" button while we play the voice response
+  const endBtn = $("initiation-end-btn");
+  if (endBtn) endBtn.style.display = "none";
+
+  try {
+    const { text, audio } = await fetchInitiationEnd();
+    addMessage("assistant", text);
+    conversation.push({ role: "assistant", content: text });
+    setState("speaking");
+    await playAudio(audio);
+  } catch (_) { /* silent fallback — auto-proceed regardless */ }
+
+  // Auto-close overlay and resume main timer (deduct 2 min already spent)
+  $("initiation-overlay").style.display = "none";
+  timerRemaining = Math.max(savedTimerRemaining - 120, 0);
+  renderTimerDisplay();
+  saveState();
+  if (!timerExpired && timerRemaining > 0) startTimer();
+  if (appState !== "listening") setState("idle");
 }
 
 // "Go back to session" — closes overlay, restores timer from before initiation
@@ -662,15 +695,6 @@ function closeInitiationEarly() {
   $("initiation-overlay").style.display = "none";
   timerRemaining = savedTimerRemaining;
   renderTimerDisplay();
-  if (!timerExpired && timerRemaining > 0) startTimer();
-}
-
-// "Continue" (shown after "Nice job!") — deducts 2 min from timer and resumes
-function continueAfterInitiation() {
-  $("initiation-overlay").style.display = "none";
-  timerRemaining = Math.max(savedTimerRemaining - 120, 0);
-  renderTimerDisplay();
-  saveState();
   if (!timerExpired && timerRemaining > 0) startTimer();
 }
 
@@ -703,6 +727,7 @@ async function init() {
     selectedEnergy          = saved.selectedEnergy          ?? 3;
     selectedLoad            = saved.selectedLoad            ?? 3;
     timerAutoStarted        = saved.timerAutoStarted        ?? false;
+    timerStartedAt          = saved.timerStartedAt          ?? null;
     sessionTimeSpentMinutes = saved.sessionTimeSpentMinutes ?? null;
     hadTimerEndConvo        = saved.hadTimerEndConvo        ?? false;
 

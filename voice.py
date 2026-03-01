@@ -119,7 +119,8 @@ def generate_session_end(block: dict, conversation: list[dict], time_spent_minut
         "role": "user",
         "content": (
             f"[The timer just ended for '{block.get('title')}' ({block.get('start')}–{block.get('end')}).{time_info}] "
-            "Simply ask what they completed during this session."
+            "Warmly acknowledge that the session is done — however it went is okay. "
+            "Then gently ask what they managed to get done. 2 sentences, no pressure."
         ),
     })
     resp = mistral_client.chat.complete(model=CHAT_MODEL, messages=messages, temperature=0.7)
@@ -165,8 +166,8 @@ def generate_wrapup_prompt(block: dict, conversation: list[dict], time_spent_min
         "role": "user",
         "content": (
             f"[The user chose to end their session on '{block.get('title')}' ({block.get('start')}–{block.get('end')}).{time_info}] "
-            "Acknowledge that they're wrapping up, then ask briefly what they accomplished this session. "
-            "Keep it to 2 sentences. Don't ask about energy or load."
+            "Warmly acknowledge that they chose to wrap up — no pressure, every bit counts. "
+            "Then gently ask what they got done this session. 2 sentences, no judgment."
         ),
     })
     resp = mistral_client.chat.complete(model=CHAT_MODEL, messages=messages, temperature=0.7)
@@ -195,16 +196,17 @@ def generate_day_summary(completed_blocks: list[dict]) -> str:
 
 
 def generate_initiation_end(block: dict, conversation: list[dict]) -> str:
-    """Checks in after the 2-minute initiation timer — asks warmly about continuing."""
+    """Celebrates after the 2-minute initiation timer — announces full session is resuming."""
     messages = [{"role": "system", "content": COACH_SYSTEM}]
     messages += conversation
     messages.append({
         "role": "user",
         "content": (
             f"[The 2-minute starter timer just finished for '{block.get('title')}'. "
-            "The user just got going on the task.] "
-            "Acknowledge the momentum they built in 2 sentences, "
-            "then ask if they want to keep going with the full session."
+            "The user got going on the task.] "
+            "Celebrate their momentum in one short sentence. "
+            "Then tell them their full session timer is resuming now — one sentence. "
+            "Do NOT ask a question."
         ),
     })
     resp = mistral_client.chat.complete(model=CHAT_MODEL, messages=messages, temperature=0.7)
