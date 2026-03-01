@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adaptive Day Planner</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #e8e8e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.25rem; color: #fff; }
+    .container { width: 100%; max-width: 820px; display: flex; flex-direction: column; gap: 1rem; }
+
+    .card {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 0.4rem; }
+
+    textarea,
+    input[type="time"],
+    input[type="date"],
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e8e8e8;
+      font-size: 0.95rem;
+      font-family: inherit;
+      padding: 0.75rem 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea { resize: vertical; min-height: 140px; }
+    textarea:focus,
+    input[type="time"]:focus,
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    input[type="text"]:focus { border-color: #555; }
+
+    /* color-scheme for native date/time pickers */
+    input[type="date"],
+    input[type="time"] { color-scheme: dark; }
+
+    .row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 160px; }
+
+    button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      width: fit-content;
+    }
+    button:hover { background: #1d4ed8; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-ghost { background: #1f2937; color: #9ca3af; }
+    .btn-ghost:hover { background: #374151; color: #e8e8e8; }
+    .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.85rem; font-weight: 500; }
+
+    .status { font-size: 0.85rem; color: #777; min-height: 1.25em; align-self: center; }
+
+    /* ── End-mode toggle ── */
+    .mode-toggle {
+      display: flex; border: 1px solid #333; border-radius: 6px;
+      overflow: hidden; width: fit-content; margin-bottom: 0.45rem;
+    }
+    .mode-toggle input[type="radio"] { display: none; }
+    .mode-toggle label {
+      display: block; padding: 0.28rem 0.75rem; font-size: 0.8rem;
+      color: #6b7280; cursor: pointer; margin: 0;
+      border-right: 1px solid #333; transition: background 0.15s, color 0.15s;
+    }
+    .mode-toggle label:last-child { border-right: none; }
+    .mode-toggle input:checked + label { background: #1e3a5f; color: #bfdbfe; }
+
+    /* ── Today hint ── */
+    .now-hint {
+      font-size: 0.75rem; color: #6b7280; margin-top: 0.3rem;
+      display: none;
+    }
+    .now-hint.visible { display: block; color: #60a5fa; }
+    input.today-locked { opacity: 0.45; pointer-events: none; }
+
+    /* ── Schedule blocks ── */
+    .schedule-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .schedule-label { font-size: 0.8rem; color: #6b7280; }
+    .schedule-actions { display: flex; gap: 0.4rem; align-items: center; }
+
+    .block {
+      border: 1px solid #2a2a2a; border-radius: 8px; padding: 0.75rem;
+      margin-top: 0.5rem; background: #101010;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .block.clickable { cursor: pointer; }
+    .block.clickable:hover { border-color: #3b82f6; background: #0f172a; }
+
+    .block-done { opacity: 0.38; pointer-events: none; }
+    .block-done .block-meta::before { content: "✓  "; color: #4ade80; }
+
+    .block-meta {
+      color: #9ca3af; font-size: 0.82rem; margin-bottom: 0.3rem;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem;
+    }
+    .block-title { font-size: 0.95rem; }
+    .block-cta { font-size: 0.75rem; color: #374151; margin-top: 0.3rem; transition: color 0.15s; }
+    .block.clickable:hover .block-cta { color: #3b82f6; }
+
+    /* Block actions row */
+    .block-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 0.3rem; }
+
+    /* Delete button */
+    .delete-block-btn {
+      background: transparent; border: none; color: #374151;
+      font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 0.15rem;
+      transition: color 0.12s;
+    }
+    .delete-block-btn:hover { color: #f87171; }
+
+    /* Inline-editable time inputs inside each block */
+    .block-time-input {
+      background: transparent; border: none;
+      border-bottom: 1px dashed transparent;
+      color: #9ca3af; font-size: 0.82rem; font-family: inherit;
+      padding: 0; width: 5.2rem; cursor: pointer;
+      outline: none; color-scheme: dark;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .block-time-input:hover,
+    .block-time-input:focus { border-bottom-color: #3b82f6; color: #e8e8e8; }
+
+    .pill {
+      display: inline-block; font-size: 0.72rem; color: #cbd5e1;
+      border: 1px solid #334155; padding: 0.1rem 0.45rem; border-radius: 999px;
+    }
+
+    .now-divider {
+      text-align: center; font-size: 0.75rem; color: #374151;
+      margin: 0.6rem 0; letter-spacing: 0.05em;
+    }
+
+    .plan-notes { font-size: 0.82rem; color: #6b7280; margin-top: 0.75rem; }
+
+    .error { color: #fca5a5; }
+    #schedule-empty { color: #6b7280; font-size: 0.9rem; }
+
+    /* break/meal block — not clickable, subtle style */
+    .block.break-block { cursor: default; }
+    .mark-done-btn {
+      margin-top: 0.35rem;
+      background: #1f2937; color: #9ca3af;
+      border: 1px solid #2a2a2a; border-radius: 6px;
+      padding: 0.3rem 0.7rem; font-size: 0.78rem; font-weight: 500;
+      cursor: pointer; transition: background 0.12s, color 0.12s;
+    }
+    .mark-done-btn:hover { background: #374151; color: #e8e8e8; }
+
+    /* ── Notification toast ── */
+    .notification-toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(1.5rem);
+      background: #1e3a5f; border: 1px solid #2563eb88;
+      color: #bfdbfe; padding: 0.7rem 1.2rem;
+      border-radius: 10px; font-size: 0.88rem; font-weight: 500;
+      z-index: 9999; opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      white-space: nowrap;
+    }
+    .notification-toast.visible {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Add-block inline form ── */
+    .add-block-form {
+      display: none;
+      gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;
+      margin-top: 0.75rem; padding: 0.75rem;
+      background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 8px;
+    }
+    .add-block-form.visible { display: flex; }
+    .add-block-form input[type="text"] { flex: 1; min-width: 140px; font-size: 0.9rem; padding: 0.55rem 0.75rem; }
+    .add-block-form input[type="time"],
+    .add-block-form input[type="number"] { width: auto; font-size: 0.9rem; padding: 0.55rem 0.75rem; }
+    .add-block-form .field { display: flex; flex-direction: column; gap: 0.2rem; }
+    .add-block-form .field label { font-size: 0.72rem; color: #555; margin: 0; }
+
+    /* ── Salvage mode toggle ── */
+    .salvage-row {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+    .toggle input {
+      display: none;
+    }
+    .toggle-track {
+      width: 38px;
+      height: 22px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      position: relative;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #f9fafb;
+      transition: transform 0.18s;
+    }
+    .toggle input:checked + .toggle-track {
+      background: #16a34a;
+      border-color: #16a34a;
+    }
+    .toggle input:checked + .toggle-track .toggle-thumb {
+      transform: translateX(14px);
+    }
+    .toggle-label-text {
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+    .salvage-hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    /* ── Day summary modal ── */
+    .summary-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 50;
+      padding: 1.5rem;
+    }
+    .summary-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      padding: 1.4rem 1.25rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .summary-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+    .summary-body {
+      font-size: 0.88rem;
+      color: #e5e7eb;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .summary-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <h1>Adaptive Day Planner</h1>
+
+  <div class="container">
+
+    <!-- Input card -->
+    <div class="card">
+      <label for="tasks">Tasks (one per line)</label>
+      <textarea id="tasks" placeholder="Write intro paragraph
+Reply to emails
+Clean desk
+Apply for internship"></textarea>
+
+      <!-- Date + Day start -->
+      <div class="row" style="margin-top:0.8rem;">
+        <div>
+          <label for="planDate">Date</label>
+          <input type="date" id="planDate" />
+        </div>
+        <div>
+          <label for="startTime">Day start</label>
+          <input type="time" id="startTime" value="09:00" />
+          <div class="now-hint" id="now-hint">→ pre-filled to next 15-min slot (editable)</div>
+        </div>
+      </div>
+
+      <!-- Day end OR allocate time -->
+      <div class="row" style="margin-top:0.65rem;">
+        <div>
+          <div class="mode-toggle">
+            <input type="radio" name="endMode" id="mode-end" value="endtime" checked />
+            <label for="mode-end">Day end</label>
+            <input type="radio" name="endMode" id="mode-dur" value="duration" />
+            <label for="mode-dur">Allocate time</label>
+          </div>
+          <input type="time"   id="endTime"     value="19:00" />
+          <input type="number" id="durationHrs" placeholder="Hours, e.g. 3.5"
+                 min="0.5" max="24" step="0.5" style="display:none;" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:0.8rem; align-items:center;">
+        <button id="planBtn">Generate plan</button>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="salvage-row">
+        <label class="toggle">
+          <input type="checkbox" id="salvageToggle" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="toggle-label-text">Minimum salvage mode</span>
+        </label>
+        <div class="salvage-hint" id="salvage-label">
+          Minimum salvage mode — pick one tiny task to get going.
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule card -->
+    <div class="card" id="schedule-card" style="display:none;">
+      <div class="schedule-header">
+        <div class="schedule-label">Schedule — tap a block to start a session</div>
+        <div class="schedule-actions">
+          <button class="btn-sm btn-ghost" id="replan-btn">Replan from now</button>
+          <button class="btn-sm btn-ghost" id="summary-btn">Day summary</button>
+          <button class="btn-sm btn-ghost" id="add-block-btn" onclick="toggleAddBlock()">+ Add block</button>
+        </div>
+      </div>
+
+      <!-- Inline add-block form -->
+      <div class="add-block-form" id="add-block-form">
+        <input type="text" id="new-block-title" placeholder="Block title" />
+        <div class="field">
+          <label>Start</label>
+          <input type="time" id="new-block-start" />
+        </div>
+        <div class="field">
+          <label>Duration (min)</label>
+          <input type="number" id="new-block-dur" value="25" min="5" step="5" style="width:90px;" />
+        </div>
+        <div style="display:flex;gap:0.4rem;align-items:flex-end;">
+          <button class="btn-sm" onclick="submitAddBlock()">Add</button>
+          <button class="btn-sm btn-ghost" onclick="toggleAddBlock()">Cancel</button>
+        </div>
+      </div>
+
+      <div id="schedule"><div id="schedule-empty">No plan yet.</div></div>
+    </div>
+
+    <!-- Day summary modal -->
+    <div class="summary-backdrop" id="summary-modal">
+      <div class="summary-card">
+        <div class="summary-title">Today so far</div>
+        <div class="summary-body" id="summary-body">Loading…</div>
+        <div class="summary-footer">
+          <button class="btn-sm btn-ghost" onclick="closeSummary()">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

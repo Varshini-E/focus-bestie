@@ -1,0 +1,1881 @@
+[
+  {
+    "timestamp": "2026-02-28T18:47:10.951977",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "starter-01",
+          "type": "starter",
+          "start": "09:00",
+          "end": "09:05",
+          "title": "Prepare mind for intro writing",
+          "load": 3
+        },
+        {
+          "id": "task-intro",
+          "type": "task",
+          "start": "09:05",
+          "end": "10:30",
+          "title": "Write intro paragraph",
+          "load": 4
+        },
+        {
+          "id": "break-01",
+          "type": "break",
+          "start": "10:30",
+          "end": "10:40",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-clean",
+          "type": "task",
+          "start": "10:40",
+          "end": "12:45",
+          "title": "Clean room",
+          "load": 3
+        },
+        {
+          "id": "meal-lunch",
+          "type": "meal",
+          "start": "12:45",
+          "end": "13:30",
+          "title": "Lunch break",
+          "load": null
+        },
+        {
+          "id": "break-02",
+          "type": "break",
+          "start": "13:30",
+          "end": "13:40",
+          "title": "Quick stretch/refresh",
+          "load": null
+        },
+        {
+          "id": "task-coffee",
+          "type": "task",
+          "start": "13:40",
+          "end": "15:00",
+          "title": "Plan coffee outing",
+          "load": 2
+        },
+        {
+          "id": "break-03",
+          "type": "break",
+          "start": "15:00",
+          "end": "15:10",
+          "title": "Transition break",
+          "load": null
+        },
+        {
+          "id": "task-coffee",
+          "type": "task",
+          "start": "15:10",
+          "end": "16:30",
+          "title": "Go for coffee",
+          "load": 1
+        },
+        {
+          "id": "break-04",
+          "type": "break",
+          "start": "16:30",
+          "end": "16:40",
+          "title": "Wind down",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Assumed 15-minute commute to coffee location (adjust if different)",
+        "Lunch break includes 45 minutes for meal + 15 minutes buffer",
+        "Coffee outing scheduled for 5:00 PM as requested, but adjusted to fit within day_end"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T18:48:01.922067",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "09:00",
+        "day_end": "19:00",
+        "blocks": [
+          {
+            "id": "starter-01",
+            "type": "starter",
+            "start": "09:00",
+            "end": "09:05",
+            "title": "Prepare mind for intro writing",
+            "load": 3
+          },
+          {
+            "id": "task-intro",
+            "type": "task",
+            "start": "09:05",
+            "end": "10:30",
+            "title": "Write intro paragraph",
+            "load": 4
+          },
+          {
+            "id": "break-01",
+            "type": "break",
+            "start": "10:30",
+            "end": "10:40",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-clean",
+            "type": "task",
+            "start": "10:40",
+            "end": "12:45",
+            "title": "Clean room",
+            "load": 3
+          },
+          {
+            "id": "meal-lunch",
+            "type": "meal",
+            "start": "12:45",
+            "end": "13:30",
+            "title": "Lunch break",
+            "load": null
+          },
+          {
+            "id": "break-02",
+            "type": "break",
+            "start": "13:30",
+            "end": "13:40",
+            "title": "Quick stretch/refresh",
+            "load": null
+          },
+          {
+            "id": "task-coffee",
+            "type": "task",
+            "start": "13:40",
+            "end": "15:00",
+            "title": "Plan coffee outing",
+            "load": 2
+          },
+          {
+            "id": "break-03",
+            "type": "break",
+            "start": "15:00",
+            "end": "15:10",
+            "title": "Transition break",
+            "load": null
+          },
+          {
+            "id": "task-coffee",
+            "type": "task",
+            "start": "15:10",
+            "end": "16:30",
+            "title": "Go for coffee",
+            "load": 1
+          },
+          {
+            "id": "break-04",
+            "type": "break",
+            "start": "16:30",
+            "end": "16:40",
+            "title": "Wind down",
+            "load": null
+          }
+        ],
+        "notes": [
+          "Assumed 15-minute commute to coffee location (adjust if different)",
+          "Lunch break includes 45 minutes for meal + 15 minutes buffer",
+          "Coffee outing scheduled for 5:00 PM as requested, but adjusted to fit within day_end"
+        ]
+      },
+      "completed_block_id": "task-intro",
+      "goals_done": [
+        "Write intro paragraph"
+      ],
+      "goals_missed": [],
+      "energy": 2,
+      "notes": "wrote half a draft!",
+      "current_time": "18:48"
+    },
+    "new_plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "break-after-writing",
+          "type": "break",
+          "start": "18:48",
+          "end": "19:00",
+          "title": "Short break to recharge",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Energy is low; prioritize rest. No further tasks scheduled today."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T22:41:06.931061",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "starter-write-para",
+          "type": "starter",
+          "start": "09:00",
+          "end": "09:05",
+          "title": "Write into para (starter)",
+          "load": 3
+        },
+        {
+          "id": "task-write-para",
+          "type": "task",
+          "start": "09:05",
+          "end": "09:50",
+          "title": "Write into para",
+          "load": 3
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "09:50",
+          "end": "09:55",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-reply-emails",
+          "type": "task",
+          "start": "09:55",
+          "end": "10:40",
+          "title": "Reply to emails",
+          "load": 2
+        },
+        {
+          "id": "break-longer",
+          "type": "break",
+          "start": "10:40",
+          "end": "10:50",
+          "title": "Longer break",
+          "load": null
+        },
+        {
+          "id": "task-write-para-continue",
+          "type": "task",
+          "start": "10:50",
+          "end": "11:35",
+          "title": "Write into para (continue)",
+          "load": 3
+        },
+        {
+          "id": "break-meal",
+          "type": "meal",
+          "start": "11:35",
+          "end": "12:15",
+          "title": "Lunch break",
+          "load": null
+        },
+        {
+          "id": "task-reply-emails-continue",
+          "type": "task",
+          "start": "12:15",
+          "end": "13:00",
+          "title": "Reply to emails (continue)",
+          "load": 2
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "13:00",
+          "end": "13:05",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-write-para-finish",
+          "type": "task",
+          "start": "13:05",
+          "end": "13:50",
+          "title": "Write into para (finish)",
+          "load": 3
+        },
+        {
+          "id": "break-longer",
+          "type": "break",
+          "start": "13:50",
+          "end": "14:00",
+          "title": "Longer break",
+          "load": null
+        },
+        {
+          "id": "task-reply-emails-finish",
+          "type": "task",
+          "start": "14:00",
+          "end": "14:50",
+          "title": "Reply to emails (finish)",
+          "load": 2
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "14:50",
+          "end": "15:00",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-misc",
+          "type": "task",
+          "start": "15:00",
+          "end": "15:50",
+          "title": "Wrap-up tasks or miscellaneous",
+          "load": 1
+        },
+        {
+          "id": "break-meal",
+          "type": "meal",
+          "start": "15:50",
+          "end": "16:30",
+          "title": "Dinner break",
+          "load": null
+        },
+        {
+          "id": "task-review",
+          "type": "task",
+          "start": "16:30",
+          "end": "17:25",
+          "title": "Review and plan for tomorrow",
+          "load": 2
+        },
+        {
+          "id": "break-wrap-up",
+          "type": "break",
+          "start": "17:25",
+          "end": "17:30",
+          "title": "Wrap-up break",
+          "load": null
+        },
+        {
+          "id": "task-wrap-up",
+          "type": "task",
+          "start": "17:30",
+          "end": "18:30",
+          "title": "Final wrap-up and organize",
+          "load": 1
+        }
+      ],
+      "notes": [
+        "Tasks are split into 25-5 and 50-10 blocks for optimal focus.",
+        "Meal breaks include time for eating and relaxation.",
+        "Adjust task loads if cognitive load varies significantly.",
+        "Ensure to hydrate and stretch during breaks."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T22:42:08.377201",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "starter-intro",
+          "type": "starter",
+          "start": "09:00",
+          "end": "09:05",
+          "title": "Write intro (starter)",
+          "load": 3
+        },
+        {
+          "id": "task-intro",
+          "type": "task",
+          "start": "09:05",
+          "end": "10:30",
+          "title": "Write intro (25-5 block)",
+          "load": 4
+        },
+        {
+          "id": "break1",
+          "type": "break",
+          "start": "10:30",
+          "end": "10:35",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-intro-continue",
+          "type": "task",
+          "start": "10:35",
+          "end": "12:05",
+          "title": "Write intro (50-10 block)",
+          "load": 4
+        },
+        {
+          "id": "meal-lunch",
+          "type": "meal",
+          "start": "12:05",
+          "end": "12:45",
+          "title": "Lunch break",
+          "load": null
+        },
+        {
+          "id": "task-intro-finish",
+          "type": "task",
+          "start": "12:45",
+          "end": "13:15",
+          "title": "Write intro (25-5 block)",
+          "load": 4
+        },
+        {
+          "id": "break2",
+          "type": "break",
+          "start": "13:15",
+          "end": "13:20",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-intro-polish",
+          "type": "task",
+          "start": "13:20",
+          "end": "14:35",
+          "title": "Polish intro (50-10 block)",
+          "load": 3
+        },
+        {
+          "id": "break3",
+          "type": "break",
+          "start": "14:35",
+          "end": "14:40",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-intro-review",
+          "type": "task",
+          "start": "14:40",
+          "end": "15:15",
+          "title": "Review intro (25-5 block)",
+          "load": 2
+        },
+        {
+          "id": "meal-snack",
+          "type": "meal",
+          "start": "15:15",
+          "end": "15:30",
+          "title": "Snack break",
+          "load": null
+        },
+        {
+          "id": "task-intro-finalize",
+          "type": "task",
+          "start": "15:30",
+          "end": "16:00",
+          "title": "Finalize intro (25-5 block)",
+          "load": 3
+        },
+        {
+          "id": "break4",
+          "type": "break",
+          "start": "16:00",
+          "end": "16:05",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-flex",
+          "type": "task",
+          "start": "16:05",
+          "end": "17:00",
+          "title": "Flexible time for intro adjustments",
+          "load": 3
+        },
+        {
+          "id": "wrap-up",
+          "type": "break",
+          "start": "17:00",
+          "end": "17:15",
+          "title": "Wrap-up and organize",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Total time allocated for intro task: 3 hours 10 minutes (including breaks).",
+        "Flexible time block at the end for adjustments or unexpected tasks.",
+        "Ensure to take breaks to avoid cognitive fatigue."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T22:45:00.010433",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "09:00",
+        "day_end": "19:00",
+        "blocks": [
+          {
+            "id": "starter-intro",
+            "type": "starter",
+            "start": "09:00",
+            "end": "09:05",
+            "title": "Write intro (starter)",
+            "load": 3
+          },
+          {
+            "id": "task-intro",
+            "type": "task",
+            "start": "09:05",
+            "end": "10:30",
+            "title": "Write intro (25-5 block)",
+            "load": 4
+          },
+          {
+            "id": "break1",
+            "type": "break",
+            "start": "10:30",
+            "end": "10:35",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-intro-continue",
+            "type": "task",
+            "start": "10:35",
+            "end": "12:05",
+            "title": "Write intro (50-10 block)",
+            "load": 4
+          },
+          {
+            "id": "meal-lunch",
+            "type": "meal",
+            "start": "12:05",
+            "end": "12:45",
+            "title": "Lunch break",
+            "load": null
+          },
+          {
+            "id": "task-intro-finish",
+            "type": "task",
+            "start": "12:45",
+            "end": "13:15",
+            "title": "Write intro (25-5 block)",
+            "load": 4
+          },
+          {
+            "id": "break2",
+            "type": "break",
+            "start": "13:15",
+            "end": "13:20",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-intro-polish",
+            "type": "task",
+            "start": "13:20",
+            "end": "14:35",
+            "title": "Polish intro (50-10 block)",
+            "load": 3
+          },
+          {
+            "id": "break3",
+            "type": "break",
+            "start": "14:35",
+            "end": "14:40",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-intro-review",
+            "type": "task",
+            "start": "14:40",
+            "end": "15:15",
+            "title": "Review intro (25-5 block)",
+            "load": 2
+          },
+          {
+            "id": "meal-snack",
+            "type": "meal",
+            "start": "15:15",
+            "end": "15:30",
+            "title": "Snack break",
+            "load": null
+          },
+          {
+            "id": "task-intro-finalize",
+            "type": "task",
+            "start": "15:30",
+            "end": "16:00",
+            "title": "Finalize intro (25-5 block)",
+            "load": 3
+          },
+          {
+            "id": "break4",
+            "type": "break",
+            "start": "16:00",
+            "end": "16:05",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-flex",
+            "type": "task",
+            "start": "16:05",
+            "end": "17:00",
+            "title": "Flexible time for intro adjustments",
+            "load": 3
+          },
+          {
+            "id": "wrap-up",
+            "type": "break",
+            "start": "17:00",
+            "end": "17:15",
+            "title": "Wrap-up and organize",
+            "load": null
+          }
+        ],
+        "notes": [
+          "Total time allocated for intro task: 3 hours 10 minutes (including breaks).",
+          "Flexible time block at the end for adjustments or unexpected tasks.",
+          "Ensure to take breaks to avoid cognitive fatigue."
+        ]
+      },
+      "completed_block_id": "starter-intro",
+      "goals_done": [],
+      "goals_missed": [
+        "Ensure browser history is saved upon clicking the back button (user did not confirm completion or verification of this task)"
+      ],
+      "energy": 3,
+      "notes": "The session focused on browser history settings, but the user did not complete or verify the goal of ensuring history is saved when clicking the back button.",
+      "current_time": "22:44"
+    },
+    "new_plan": {
+      "day_start": "00:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "adhd-reset-2244",
+          "type": "break",
+          "start": "22:44",
+          "end": "23:00",
+          "title": "ADHD Reset Break (5 min)",
+          "load": null
+        },
+        {
+          "id": "micro-goal-2300",
+          "type": "task",
+          "start": "23:00",
+          "end": "23:15",
+          "title": "Test Back Button History (15 min)",
+          "load": 1
+        },
+        {
+          "id": "break-2315",
+          "type": "break",
+          "start": "23:15",
+          "end": "23:30",
+          "title": "Short Movement Break",
+          "load": null
+        },
+        {
+          "id": "verify-goal-2330",
+          "type": "task",
+          "start": "23:30",
+          "end": "23:45",
+          "title": "Verify Back Button History (15 min)",
+          "load": 2
+        },
+        {
+          "id": "wind-down-2345",
+          "type": "break",
+          "start": "23:45",
+          "end": "00:00",
+          "title": "Wind Down (15 min)",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Missed goal broken into micro-steps. Prioritized verification with low-load tasks.",
+        "Energy 3/5: kept tasks short and spaced with breaks.",
+        "No scheduling past day_end (19:00)."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T23:09:47.586261",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "intro-starter",
+          "type": "starter",
+          "start": "09:00",
+          "end": "09:05",
+          "title": "Write intro paragraph - starter",
+          "load": 3
+        },
+        {
+          "id": "intro-task",
+          "type": "task",
+          "start": "09:05",
+          "end": "10:05",
+          "title": "Write intro paragraph",
+          "load": 4
+        },
+        {
+          "id": "break-1",
+          "type": "break",
+          "start": "10:05",
+          "end": "10:10",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "emails-task",
+          "type": "task",
+          "start": "10:10",
+          "end": "11:00",
+          "title": "Reply to 5 emails",
+          "load": 2
+        },
+        {
+          "id": "meal-break",
+          "type": "meal",
+          "start": "11:00",
+          "end": "11:30",
+          "title": "Lunch break",
+          "load": null
+        },
+        {
+          "id": "task-2",
+          "type": "task",
+          "start": "11:30",
+          "end": "12:00",
+          "title": "Reply to 5 emails (remaining)",
+          "load": 2
+        },
+        {
+          "id": "break-2",
+          "type": "break",
+          "start": "12:00",
+          "end": "12:10",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-3",
+          "type": "task",
+          "start": "12:10",
+          "end": "12:40",
+          "title": "Follow-up emails (if needed)",
+          "load": 2
+        },
+        {
+          "id": "break-3",
+          "type": "break",
+          "start": "12:40",
+          "end": "12:50",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "get-ready",
+          "type": "task",
+          "start": "12:50",
+          "end": "13:30",
+          "title": "Getting ready for afternoon",
+          "load": 1
+        },
+        {
+          "id": "task-4",
+          "type": "task",
+          "start": "13:30",
+          "end": "14:00",
+          "title": "Review and finalize emails",
+          "load": 2
+        },
+        {
+          "id": "meal-break-2",
+          "type": "meal",
+          "start": "14:00",
+          "end": "14:30",
+          "title": "Afternoon snack/break",
+          "load": null
+        },
+        {
+          "id": "task-5",
+          "type": "task",
+          "start": "14:30",
+          "end": "15:00",
+          "title": "Miscellaneous emails or follow-ups",
+          "load": 2
+        },
+        {
+          "id": "break-4",
+          "type": "break",
+          "start": "15:00",
+          "end": "15:10",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-6",
+          "type": "task",
+          "start": "15:10",
+          "end": "16:00",
+          "title": "Wrap-up tasks or additional emails",
+          "load": 2
+        },
+        {
+          "id": "break-5",
+          "type": "break",
+          "start": "16:00",
+          "end": "16:10",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-7",
+          "type": "task",
+          "start": "16:10",
+          "end": "16:40",
+          "title": "Final review and organization",
+          "load": 1
+        },
+        {
+          "id": "wrap-up",
+          "type": "task",
+          "start": "16:40",
+          "end": "17:30",
+          "title": "Wrap-up and prepare for next day",
+          "load": 1
+        },
+        {
+          "id": "end-of-day",
+          "type": "break",
+          "start": "17:30",
+          "end": "19:00",
+          "title": "Free time / unwind",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Adjusted email tasks into multiple blocks to ensure thorough replies and breaks.",
+        "Included meal breaks and time for getting ready to maintain balance.",
+        "Flexible time blocks for emails to accommodate unexpected delays or follow-ups."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T23:13:52.906553",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "starter-write-para",
+          "type": "starter",
+          "start": "09:00",
+          "end": "09:05",
+          "title": "Write into paragraph (starter)",
+          "load": 2
+        },
+        {
+          "id": "task-write-para",
+          "type": "task",
+          "start": "09:05",
+          "end": "09:30",
+          "title": "Write into paragraph",
+          "load": 3
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "09:30",
+          "end": "09:35",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-reply-emails",
+          "type": "task",
+          "start": "09:35",
+          "end": "10:05",
+          "title": "Reply to 5 emails (25-min block)",
+          "load": 3
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "10:05",
+          "end": "10:10",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-reply-emails-continue",
+          "type": "task",
+          "start": "10:10",
+          "end": "10:40",
+          "title": "Reply to 5 emails (remaining)",
+          "load": 3
+        },
+        {
+          "id": "meal-breakfast",
+          "type": "meal",
+          "start": "10:40",
+          "end": "11:10",
+          "title": "Breakfast and morning routine",
+          "load": null
+        },
+        {
+          "id": "task-write-para-continue",
+          "type": "task",
+          "start": "11:10",
+          "end": "11:35",
+          "title": "Continue writing into paragraph",
+          "load": 2
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "11:35",
+          "end": "11:40",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-misc-work",
+          "type": "task",
+          "start": "11:40",
+          "end": "12:10",
+          "title": "Miscellaneous work (if needed)",
+          "load": 2
+        },
+        {
+          "id": "meal-lunch",
+          "type": "meal",
+          "start": "12:10",
+          "end": "13:00",
+          "title": "Lunch and break",
+          "load": null
+        },
+        {
+          "id": "task-write-para-finalize",
+          "type": "task",
+          "start": "13:00",
+          "end": "13:25",
+          "title": "Finalize writing into paragraph",
+          "load": 2
+        },
+        {
+          "id": "break-short",
+          "type": "break",
+          "start": "13:25",
+          "end": "13:30",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-review-work",
+          "type": "task",
+          "start": "13:30",
+          "end": "14:00",
+          "title": "Review and finalize emails",
+          "load": 3
+        },
+        {
+          "id": "meal-afternoon-snack",
+          "type": "meal",
+          "start": "14:00",
+          "end": "14:15",
+          "title": "Afternoon snack",
+          "load": null
+        },
+        {
+          "id": "task-flexible-work",
+          "type": "task",
+          "start": "14:15",
+          "end": "15:45",
+          "title": "Flexible work time (if needed)",
+          "load": 2
+        },
+        {
+          "id": "break-long",
+          "type": "break",
+          "start": "15:45",
+          "end": "16:00",
+          "title": "Longer break",
+          "load": null
+        },
+        {
+          "id": "task-wrap-up",
+          "type": "task",
+          "start": "16:00",
+          "end": "17:00",
+          "title": "Wrap-up tasks and prepare for the day end",
+          "load": 2
+        },
+        {
+          "id": "meal-dinner-prep",
+          "type": "meal",
+          "start": "17:00",
+          "end": "17:30",
+          "title": "Dinner preparation and evening routine",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Adjusted for cognitive load and task complexity with 25-5, 50-10, and 75-15 blocks.",
+        "Included meal times and breaks for sustainability.",
+        "Flexible work block available for unexpected tasks.",
+        "Ensured no tasks scheduled past 19:00."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-02-28T23:16:17.926482",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "09:00",
+        "day_end": "19:00",
+        "blocks": [
+          {
+            "id": "starter-write-para",
+            "type": "starter",
+            "start": "09:00",
+            "end": "09:05",
+            "title": "Write into paragraph (starter)",
+            "load": 2
+          },
+          {
+            "id": "task-write-para",
+            "type": "task",
+            "start": "09:05",
+            "end": "09:30",
+            "title": "Write into paragraph",
+            "load": 3
+          },
+          {
+            "id": "break-short",
+            "type": "break",
+            "start": "09:30",
+            "end": "09:35",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-reply-emails",
+            "type": "task",
+            "start": "09:35",
+            "end": "10:05",
+            "title": "Reply to 5 emails (25-min block)",
+            "load": 3
+          },
+          {
+            "id": "break-short",
+            "type": "break",
+            "start": "10:05",
+            "end": "10:10",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-reply-emails-continue",
+            "type": "task",
+            "start": "10:10",
+            "end": "10:40",
+            "title": "Reply to 5 emails (remaining)",
+            "load": 3
+          },
+          {
+            "id": "meal-breakfast",
+            "type": "meal",
+            "start": "10:40",
+            "end": "11:10",
+            "title": "Breakfast and morning routine",
+            "load": null
+          },
+          {
+            "id": "task-write-para-continue",
+            "type": "task",
+            "start": "11:10",
+            "end": "11:35",
+            "title": "Continue writing into paragraph",
+            "load": 2
+          },
+          {
+            "id": "break-short",
+            "type": "break",
+            "start": "11:35",
+            "end": "11:40",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-misc-work",
+            "type": "task",
+            "start": "11:40",
+            "end": "12:10",
+            "title": "Miscellaneous work (if needed)",
+            "load": 2
+          },
+          {
+            "id": "meal-lunch",
+            "type": "meal",
+            "start": "12:10",
+            "end": "13:00",
+            "title": "Lunch and break",
+            "load": null
+          },
+          {
+            "id": "task-write-para-finalize",
+            "type": "task",
+            "start": "13:00",
+            "end": "13:25",
+            "title": "Finalize writing into paragraph",
+            "load": 2
+          },
+          {
+            "id": "break-short",
+            "type": "break",
+            "start": "13:25",
+            "end": "13:30",
+            "title": "Short break",
+            "load": null
+          },
+          {
+            "id": "task-review-work",
+            "type": "task",
+            "start": "13:30",
+            "end": "14:00",
+            "title": "Review and finalize emails",
+            "load": 3
+          },
+          {
+            "id": "meal-afternoon-snack",
+            "type": "meal",
+            "start": "14:00",
+            "end": "14:15",
+            "title": "Afternoon snack",
+            "load": null
+          },
+          {
+            "id": "task-flexible-work",
+            "type": "task",
+            "start": "14:15",
+            "end": "15:45",
+            "title": "Flexible work time (if needed)",
+            "load": 2
+          },
+          {
+            "id": "break-long",
+            "type": "break",
+            "start": "15:45",
+            "end": "16:00",
+            "title": "Longer break",
+            "load": null
+          },
+          {
+            "id": "task-wrap-up",
+            "type": "task",
+            "start": "16:00",
+            "end": "17:00",
+            "title": "Wrap-up tasks and prepare for the day end",
+            "load": 2
+          },
+          {
+            "id": "meal-dinner-prep",
+            "type": "meal",
+            "start": "17:00",
+            "end": "17:30",
+            "title": "Dinner preparation and evening routine",
+            "load": null
+          }
+        ],
+        "notes": [
+          "Adjusted for cognitive load and task complexity with 25-5, 50-10, and 75-15 blocks.",
+          "Included meal times and breaks for sustainability.",
+          "Flexible work block available for unexpected tasks.",
+          "Ensured no tasks scheduled past 19:00."
+        ]
+      },
+      "completed_block_id": "task-write-para",
+      "goals_done": [
+        "Set a clear focus goal for the session ('write down a rough draft')"
+      ],
+      "goals_missed": [
+        "Establish a *specific* numerical or structural target (e.g., '3 strong sentences' or 'find the main idea first')",
+        "Implement a structured pre-writing step (e.g., outlining or brainstorming before the timer)",
+        "Explicitly enforce a 'no editing' rule during the initial draft phase (only mentioned as a suggestion)"
+      ],
+      "energy": 3,
+      "notes": "Session focused on raw output but lacked concrete milestones or constraints to guide the drafting process.",
+      "current_time": "23:16"
+    },
+    "new_plan": {
+      "day_start": "00:00",
+      "day_end": "19:00",
+      "blocks": [
+        {
+          "id": "adhd-break-1",
+          "type": "break",
+          "start": "23:16",
+          "end": "23:46",
+          "title": "ADHD-friendly break (30 min)",
+          "load": null
+        },
+        {
+          "id": "adhd-prewrite-1",
+          "type": "task",
+          "start": "23:46",
+          "end": "00:16",
+          "title": "Brainstorming: List 5 main ideas (5 min) + Outline rough structure (10 min)",
+          "load": 2
+        },
+        {
+          "id": "adhd-draft-1",
+          "type": "task",
+          "start": "00:16",
+          "end": "01:00",
+          "title": "Draft: Write 3 strong sentences per idea (no editing)",
+          "load": 3
+        },
+        {
+          "id": "adhd-break-2",
+          "type": "break",
+          "start": "01:00",
+          "end": "01:30",
+          "title": "Short break (30 min)",
+          "load": null
+        },
+        {
+          "id": "adhd-refine-1",
+          "type": "task",
+          "start": "01:30",
+          "end": "02:00",
+          "title": "Review draft: Highlight weak sentences (no rewriting yet)",
+          "load": 2
+        }
+      ],
+      "notes": [
+        "Missed goals broken into smaller, structured steps.",
+        "Pre-writing step added to reduce overwhelm.",
+        "No editing rule enforced via time-boxed drafting.",
+        "Energy 3 \u2192 kept tasks short and low-load.",
+        "Day end (19:00) respected; no scheduling past it."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T08:28:54.699677",
+    "type": "plan",
+    "plan": {
+      "day_start": "08:28",
+      "day_end": "10:28",
+      "blocks": [
+        {
+          "id": "starter-write-para-0828",
+          "type": "starter",
+          "start": "08:28",
+          "end": "08:33",
+          "title": "Write into para (starter)",
+          "load": 2
+        },
+        {
+          "id": "task-write-para-0833",
+          "type": "task",
+          "start": "08:33",
+          "end": "09:03",
+          "title": "Write into para (Pomodoro 25)",
+          "load": 3
+        },
+        {
+          "id": "break-0903",
+          "type": "break",
+          "start": "09:03",
+          "end": "09:08",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-make-coffee-0908",
+          "type": "task",
+          "start": "09:08",
+          "end": "09:15",
+          "title": "Make coffee",
+          "load": 1
+        },
+        {
+          "id": "task-write-para-0915",
+          "type": "task",
+          "start": "09:15",
+          "end": "09:45",
+          "title": "Write into para (Pomodoro 30)",
+          "load": 3
+        },
+        {
+          "id": "break-0945",
+          "type": "break",
+          "start": "09:45",
+          "end": "09:50",
+          "title": "Short break",
+          "load": null
+        },
+        {
+          "id": "task-write-para-0950",
+          "type": "task",
+          "start": "09:50",
+          "end": "10:15",
+          "title": "Write into para (Pomodoro 25)",
+          "load": 3
+        }
+      ],
+      "notes": [
+        "Schedule ends early at 10:15 as all tasks are completed before day_end.",
+        "Coffee task is short and scheduled during a break-like window."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T08:49:02.220396",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:15",
+      "day_end": "11:15",
+      "blocks": [
+        {
+          "id": "intro-starter",
+          "type": "starter",
+          "start": "09:15",
+          "end": "09:20",
+          "title": "Write intro para (starter)",
+          "load": 2
+        },
+        {
+          "id": "intro-task",
+          "type": "task",
+          "start": "09:20",
+          "end": "09:45",
+          "title": "Write intro paragraph",
+          "load": 3
+        },
+        {
+          "id": "coffee-break",
+          "type": "break",
+          "start": "09:45",
+          "end": "09:50",
+          "title": "Quick break",
+          "load": null
+        },
+        {
+          "id": "make-coffee",
+          "type": "task",
+          "start": "09:50",
+          "end": "09:55",
+          "title": "Make coffee",
+          "load": 1
+        }
+      ],
+      "notes": [
+        "Schedule ends early as tasks are completed well before day_end."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T08:52:36.368532",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "09:15",
+        "day_end": "11:15",
+        "blocks": [
+          {
+            "id": "intro-starter",
+            "type": "starter",
+            "start": "09:15",
+            "end": "09:20",
+            "title": "Write intro para (starter)",
+            "load": 2
+          },
+          {
+            "id": "intro-task",
+            "type": "task",
+            "start": "09:20",
+            "end": "09:45",
+            "title": "Write intro paragraph",
+            "load": 3
+          },
+          {
+            "id": "coffee-break",
+            "type": "break",
+            "start": "09:45",
+            "end": "09:50",
+            "title": "Quick break",
+            "load": null
+          },
+          {
+            "id": "make-coffee",
+            "type": "task",
+            "start": "09:50",
+            "end": "09:55",
+            "title": "Make coffee",
+            "load": 1
+          }
+        ],
+        "notes": [
+          "Schedule ends early as tasks are completed well before day_end."
+        ]
+      },
+      "completed_block_id": "intro-starter",
+      "goals_done": [
+        "Drafted an intro paragraph consisting of five sentences within a short timeframe (exceeding the initial goal of three sentences)",
+        "Identified the strongest opener among the five sentences written"
+      ],
+      "goals_missed": [
+        "Did not strictly adhere to the initial goal of drafting only three sentences (though the expanded output was productive)"
+      ],
+      "energy": 3,
+      "cognitive_load": 3,
+      "notes": "The session was highly productive, with the user surpassing the initial goal by writing five sentences and engaging actively in refining the strongest opener. The assistant provided encouraging feedback and guidance throughout.",
+      "current_time": "08:52"
+    },
+    "new_plan": {
+      "day_start": "08:52",
+      "day_end": "11:15",
+      "blocks": [
+        {
+          "id": "follow-up-refinement",
+          "type": "task",
+          "start": "08:52",
+          "end": "09:20",
+          "title": "Refine strongest opener and outline next paragraph sections",
+          "load": 2
+        },
+        {
+          "id": "short-break",
+          "type": "break",
+          "start": "09:20",
+          "end": "09:30",
+          "title": "Quick energy reset",
+          "load": null
+        },
+        {
+          "id": "body-paragraph",
+          "type": "task",
+          "start": "09:30",
+          "end": "10:00",
+          "title": "Draft body paragraph (2-3 sentences)",
+          "load": 3
+        },
+        {
+          "id": "flexible-break",
+          "type": "break",
+          "start": "10:00",
+          "end": "10:10",
+          "title": "Flexible break (stretch, snack, or walk)",
+          "load": null
+        },
+        {
+          "id": "conclusion-task",
+          "type": "task",
+          "start": "10:10",
+          "end": "10:40",
+          "title": "Draft conclusion paragraph (3-4 sentences)",
+          "load": 2
+        }
+      ],
+      "notes": [
+        "Missed goal ('Draft intro paragraph') was addressed by breaking it into smaller, achievable steps. Adjusted for energy (3/5) and cognitive load (3/5) by reducing task load and adding breaks.",
+        "Scheduled lighter tasks after the demanding intro work to align with energy levels.",
+        "No tasks scheduled past 11:15 (day_end)."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T09:40:01.736553",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:45",
+      "day_end": "10:45",
+      "blocks": [
+        {
+          "id": "starter-write-para-0945",
+          "type": "starter",
+          "start": "09:45",
+          "end": "09:50",
+          "title": "Write into para - starter",
+          "load": 2
+        },
+        {
+          "id": "task-write-para-0950",
+          "type": "task",
+          "start": "09:50",
+          "end": "10:15",
+          "title": "Write into para",
+          "load": 3
+        },
+        {
+          "id": "break-after-write-para-1015",
+          "type": "break",
+          "start": "10:15",
+          "end": "10:20",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Task completed early; no padding added."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T09:40:14.127195",
+    "type": "plan",
+    "plan": {
+      "day_start": "09:45",
+      "day_end": "10:45",
+      "blocks": [
+        {
+          "id": "intro-para-starter",
+          "type": "starter",
+          "start": "09:45",
+          "end": "09:50",
+          "title": "Write intro para - starter",
+          "load": 2
+        },
+        {
+          "id": "intro-para-task",
+          "type": "task",
+          "start": "09:50",
+          "end": "10:15",
+          "title": "Write intro paragraph",
+          "load": 3
+        }
+      ],
+      "notes": [
+        "Task completed early; no need to pad the schedule."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T09:42:25.340443",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "09:45",
+        "day_end": "10:45",
+        "blocks": [
+          {
+            "id": "intro-para-starter",
+            "type": "starter",
+            "start": "09:45",
+            "end": "09:50",
+            "title": "Write intro para - starter",
+            "load": 2
+          },
+          {
+            "id": "intro-para-task",
+            "type": "task",
+            "start": "09:50",
+            "end": "10:15",
+            "title": "Write intro paragraph",
+            "load": 3
+          }
+        ],
+        "notes": [
+          "Task completed early; no need to pad the schedule."
+        ]
+      },
+      "completed_block_id": "intro-para-starter",
+      "goals_done": [
+        "User initiated a 3-sentence draft goal for the intro paragraph",
+        "Assistant provided structured guidance to spark creativity (rotary words, circular motion brainstorm)"
+      ],
+      "goals_missed": [
+        "User did not complete a full 3-sentence draft within the 5-minute session",
+        "User did not write a full sentence out loud (only partial input: 'rotary words related to')"
+      ],
+      "energy": 1,
+      "cognitive_load": 4,
+      "notes": "Session focused on generating starter ideas for an intro paragraph using rotary/circular motion themes. User engaged in partial brainstorming but lacked time to finalize draft. Next steps: refine rotary word + circular object pairing into a coherent opening sentence.",
+      "current_time": "09:42"
+    },
+    "new_plan": {
+      "day_start": "09:42",
+      "day_end": "10:45",
+      "blocks": [
+        {
+          "id": "refine-brainstorm-1",
+          "type": "task",
+          "start": "09:42",
+          "end": "09:55",
+          "title": "Refine rotary word + circular object pairing into a coherent sentence",
+          "load": 2
+        },
+        {
+          "id": "break-1",
+          "type": "break",
+          "start": "09:55",
+          "end": "10:00",
+          "title": "Short movement break",
+          "load": null
+        },
+        {
+          "id": "intro-para-chunk-1",
+          "type": "task",
+          "start": "10:00",
+          "end": "10:15",
+          "title": "Draft 1-2 sentences for intro paragraph (rotary/circular theme)",
+          "load": 2
+        }
+      ],
+      "notes": [
+        "Missed goals broken into smaller, achievable chunks. Lower energy and high cognitive load prioritized shorter, easier tasks.",
+        "Added break immediately after first block to reset focus.",
+        "Remaining time used for focused drafting, not full paragraph completion."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T10:48:43.265017",
+    "type": "plan",
+    "plan": {
+      "day_start": "11:00",
+      "day_end": "13:00",
+      "blocks": [
+        {
+          "id": "intro-starter",
+          "type": "starter",
+          "start": "11:00",
+          "end": "11:05",
+          "title": "Write intro para (prep)",
+          "load": 2
+        },
+        {
+          "id": "intro-task",
+          "type": "task",
+          "start": "11:05",
+          "end": "11:30",
+          "title": "Write intro paragraph",
+          "load": 3
+        },
+        {
+          "id": "coffee-break",
+          "type": "break",
+          "start": "11:30",
+          "end": "11:35",
+          "title": "Quick break",
+          "load": null
+        },
+        {
+          "id": "make-coffee",
+          "type": "task",
+          "start": "11:35",
+          "end": "11:40",
+          "title": "Make coffee",
+          "load": 1
+        },
+        {
+          "id": "wrap-up",
+          "type": "break",
+          "start": "11:40",
+          "end": "13:00",
+          "title": "Flexible wrap-up / buffer",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Schedule ends early if tasks complete before 13:00",
+        "Coffee task is quick; no load assigned"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T10:49:45.525722",
+    "type": "replan",
+    "feedback": {
+      "current_plan": {
+        "day_start": "11:00",
+        "day_end": "13:00",
+        "blocks": [
+          {
+            "id": "intro-starter",
+            "type": "starter",
+            "start": "11:00",
+            "end": "11:05",
+            "title": "Write intro para (prep)",
+            "load": 2
+          },
+          {
+            "id": "intro-task",
+            "type": "task",
+            "start": "11:05",
+            "end": "11:30",
+            "title": "Write intro paragraph",
+            "load": 3
+          },
+          {
+            "id": "coffee-break",
+            "type": "break",
+            "start": "11:30",
+            "end": "11:35",
+            "title": "Quick break",
+            "load": null
+          },
+          {
+            "id": "make-coffee",
+            "type": "task",
+            "start": "11:35",
+            "end": "11:40",
+            "title": "Make coffee",
+            "load": 1
+          },
+          {
+            "id": "wrap-up",
+            "type": "break",
+            "start": "11:40",
+            "end": "13:00",
+            "title": "Flexible wrap-up / buffer",
+            "load": null
+          }
+        ],
+        "notes": [
+          "Schedule ends early if tasks complete before 13:00",
+          "Coffee task is quick; no load assigned"
+        ]
+      },
+      "completed_block_id": "intro-starter",
+      "goals_done": [
+        "Wrote a one-sentence note about what the user was avoiding (implicitly triggered by the assistant's instruction)"
+      ],
+      "goals_missed": [
+        "Write 3 sentences (user only engaged with the assistant\u2019s prompt to write 1 sentence)",
+        "Complete the full intro paragraph preparation task (no draft or full sentences produced)"
+      ],
+      "energy": 3,
+      "cognitive_load": 3,
+      "notes": "Session focused on initial resistance/avoidance identification rather than task execution. User engaged with assistant\u2019s micro-task but did not progress toward the core goal of writing 3 sentences for the intro paragraph.",
+      "current_time": "10:49"
+    },
+    "new_plan": {
+      "day_start": "09:00",
+      "day_end": "13:00",
+      "blocks": [
+        {
+          "id": "micro-task-reflection",
+          "type": "task",
+          "start": "10:49",
+          "end": "11:00",
+          "title": "Reflect on 1-sentence note and plan micro-goals for intro paragraph",
+          "load": 2
+        },
+        {
+          "id": "short-writing-practice",
+          "type": "task",
+          "start": "11:00",
+          "end": "11:15",
+          "title": "Write 1-2 short sentences (intro paragraph practice)",
+          "load": 2
+        },
+        {
+          "id": "energy-break",
+          "type": "break",
+          "start": "11:15",
+          "end": "11:25",
+          "title": "Stand up, stretch, hydrate",
+          "load": null
+        },
+        {
+          "id": "coffee-break",
+          "type": "task",
+          "start": "11:25",
+          "end": "11:30",
+          "title": "Make coffee",
+          "load": 1
+        },
+        {
+          "id": "quick-break",
+          "type": "break",
+          "start": "11:30",
+          "end": "11:35",
+          "title": "Quick break",
+          "load": null
+        },
+        {
+          "id": "intro-task-chunked",
+          "type": "task",
+          "start": "11:35",
+          "end": "11:50",
+          "title": "Write 1-2 sentences for intro paragraph (chunked)",
+          "load": 2
+        },
+        {
+          "id": "wrap-up",
+          "type": "break",
+          "start": "11:50",
+          "end": "13:00",
+          "title": "Flexible wrap-up / buffer",
+          "load": null
+        }
+      ],
+      "notes": [
+        "Missed goals broken into smaller, manageable chunks to reduce cognitive load.",
+        "Added extra break due to energy level 3/5 and cognitive load 3/5.",
+        "Prioritized micro-goals to build confidence and momentum.",
+        "Adjusted task duration to accommodate energy fluctuations."
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-03-01T11:35:42.774627",
+    "type": "salvage_plan",
+    "plan": {
+      "plan": [
+        {
+          "time_start": "11:40",
+          "time_end": "11:45",
+          "load": 1,
+          "notes": "5-minute starter block for 'write intro para'. This is the simplest task and requires minimal setup\u2014just starting is the hardest part."
+        },
+        {
+          "time_start": "11:45",
+          "time_end": "12:10",
+          "load": 2,
+          "notes": "25-minute focused work session on 'write intro para'. Short duration to avoid overwhelm."
+        }
+      ],
+      "day_end": "19:00"
+    }
+  },
+  {
+    "timestamp": "2026-03-01T11:36:09.483640",
+    "type": "salvage_plan",
+    "plan": {
+      "plan": [
+        {
+          "time_start": "11:36",
+          "time_end": "11:41",
+          "load": 1,
+          "notes": "5-minute starter: Write the first sentence of the intro paragraph. Focus on the most concrete opening idea to avoid overwhelm."
+        },
+        {
+          "time_start": "11:41",
+          "time_end": "12:06",
+          "load": 2,
+          "notes": "25-minute work session: Complete the intro paragraph. Prioritize clarity and a single, strong opening statement."
+        }
+      ],
+      "day_end": "19:00"
+    }
+  }
+]
