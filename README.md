@@ -1,4 +1,4 @@
-# Adaptive Day Planner - Rebase
+# Adaptive Day Planner - Anchor
 
 An ADHD-aware, AI-powered day planner that schedules your tasks, acts as a body doubling agent during each work session, and dynamically replans your day as things change.
 
