@@ -27,8 +27,8 @@ If the day feels overwhelming, **Minimum Salvage Mode** strips everything back t
 | Layer | Technology |
 |---|---|
 | Backend | Python, FastAPI, Uvicorn |
-| AI scheduling | Mistral AI (`ministral-8b-latest`) |
-| AI body doubling | Mistral AI (`ministral-8b-latest`) |
+| AI scheduling | Mistral AI (`ministral-14b-latest`) |
+| AI body doubling | Mistral AI (`ministral-14b-latest`) |
 | Text-to-speech | ElevenLabs API (`eleven_multilingual_v2`) |
 | Speech-to-text | Browser Web Speech API (SpeechRecognition) |
 | Frontend | Vanilla HTML/CSS/JS, Jinja2 templates |
