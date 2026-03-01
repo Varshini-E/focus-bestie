@@ -88,10 +88,11 @@ Build a time-blocked day schedule from the tasks provided.
 Rules:
 - Respect day_start and day_end as the allowed window — tasks do NOT need to fill it entirely.
 - Estimate realistic durations based on task complexity. Two simple tasks should NOT span 10 hours.
-- First block must be a 5-minute "starter" on the first task to ease into it.
 - Use Pomodoro-style blocks: 25 min work / 5 min break, 50 min / 10 min, or 75 min / 15 min — match complexity.
+- Reason about what tasks imply: if a task involves travel, eating, preparation, errands, or waiting, add the necessary implicit blocks. Example: "dinner at a restaurant" implies travel there, eating (~45–60 min), and travel back — schedule all three. "Job interview downtown" implies commute each way.
 - Add short breaks between demanding tasks; add a meal block if the window spans a typical meal time.
 - Do not schedule anything past day_end.
+- All block start and end times must align to 15-minute increments (HH:00, HH:15, HH:30, or HH:45).
 - "load" is an integer 1–5 (cognitive load). Use null for break and meal blocks.
 - If all tasks can realistically be done in less time than the full window, end the schedule early — don't pad.
 
@@ -121,42 +122,68 @@ Pick exactly ONE task from the list — the most concrete and achievable — and
 
 Rules:
 - Choose the simplest or most immediately doable task. Ignore all others.
-- First block: 5-minute "starter" on that task.
-- Second block: one 25-minute work session on the same task.
+- Schedule one 25-minute work session on that task, starting at day_start.
 - Do NOT add more tasks, extra breaks, or padding.
 - Do not schedule anything past day_end.
+- All block start and end times must align to 15-minute increments (HH:00, HH:15, HH:30, or HH:45).
 - "load" is an integer 1–5. Use null for break blocks.
 - The notes field should explain which task was chosen and why.
 
-Return format: same JSON structure as a normal plan.
+Return format:
+{
+  "day_start": "HH:MM",
+  "day_end": "HH:MM",
+  "blocks": [
+    {
+      "id": "unique-string",
+      "type": "starter | task | break | meal",
+      "start": "HH:MM",
+      "end": "HH:MM",
+      "title": "string",
+      "load": 1-5 or null
+    }
+  ],
+  "notes": ["string"]
+}
 """
 
 
+def _effective_start(day_start: str) -> str:
+    """Returns the later of day_start and current time (rounded to next 15-min mark if using now)."""
+    now = datetime.now().strftime("%H:%M")
+    if now <= day_start:
+        return day_start  # plan hasn't started yet — respect day_start
+    # day_start is in the past; snap current time up to next 15-min slot
+    now_mins = datetime.now().hour * 60 + datetime.now().minute
+    snapped  = ((now_mins + 14) // 15) * 15
+    h, m     = divmod(snapped % 1440, 60)
+    return f"{h:02d}:{m:02d}"
+
+
 def generate_plan(tasks: list[str], day_start: str, day_end: str) -> dict:
+    eff = _effective_start(day_start)
     user_prompt = (
         f"Tasks:\n{chr(10).join(f'- {t}' for t in tasks)}\n\n"
         f"Day start: {day_start}\nDay end: {day_end}\n\n"
-        "Call get_current_time first to get the current time for scheduling context."
+        f"Schedule all blocks starting from {eff}."
     )
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_prompt},
     ]
-    messages = _run_tool_phase(messages)
     return _json_plan_phase(messages, temperature=0.2)
 
-
 def generate_salvage_plan(tasks: list[str], day_start: str, day_end: str) -> dict:
+    eff = _effective_start(day_start)
     user_prompt = (
         f"Tasks to choose from:\n{chr(10).join(f'- {t}' for t in tasks)}\n\n"
         f"Day start: {day_start}\nDay end: {day_end}\n\n"
-        "Pick just ONE task and schedule only that. Call get_current_time first."
+        f"Pick just ONE task. First block starts at {eff}."
     )
     messages = [
         {"role": "system", "content": SALVAGE_SYSTEM_PROMPT},
         {"role": "user", "content": user_prompt},
     ]
-    messages = _run_tool_phase(messages)
     return _json_plan_phase(messages, temperature=0.3)
 
 
@@ -171,8 +198,10 @@ ADHD-aware rules:
 - Cognitive load 4-5: person found the work mentally taxing — schedule lighter or shorter tasks next, add a break.
 - Cognitive load 1-2: work felt easy — can handle a more demanding task next.
 - If goals were missed: break that task into smaller chunks and reschedule.
+- Reason about what tasks imply: if a task involves travel, eating, preparation, errands, or waiting, add the necessary implicit blocks. Example: "dinner at a restaurant" implies travel there, eating (~45–60 min), and travel back — schedule all three.
 - First block must start exactly at current_time.
 - Do not schedule anything past day_end.
+- All block start and end times must align to 15-minute increments (HH:00, HH:15, HH:30, or HH:45), except the first block which must start at current_time exactly.
 - "load" is an integer 1–5. Use null for break and meal blocks.
 
 Return format:
@@ -204,17 +233,32 @@ def replan_day(
     notes: str,
     current_time: str,
     time_spent_minutes: int | None = None,
+    day_log: list[dict] | None = None,
 ) -> dict:
     remaining = [
         b for b in current_plan.get("blocks", [])
         if b["id"] != completed_block_id and b["start"] >= current_time
     ]
 
+    # Build day history context from previous completed sessions
+    history_text = ""
+    if day_log:
+        lines = []
+        for e in day_log:
+            done   = ", ".join(e.get("goals_done", [])) or "none"
+            missed = ", ".join(e.get("goals_missed", [])) or "none"
+            lines.append(
+                f"  - {e.get('block_title', '?')} ({e.get('block_start', '?')}–{e.get('block_end', '?')}): "
+                f"done: {done} | missed: {missed} | energy: {e.get('energy', '?')}/5, load: {e.get('load', '?')}/5"
+            )
+        history_text = "Sessions completed earlier today:\n" + "\n".join(lines) + "\n\n"
+
     load_line = f"- Cognitive load: {cognitive_load}/5\n" if cognitive_load else ""
     time_line = f"- Time spent on this block: {time_spent_minutes} minute(s)\n" if time_spent_minutes is not None else ""
     user_prompt = (
         f"A time block just ended. Reschedule the rest of the day.\n\n"
-        f"Feedback:\n"
+        f"{history_text}"
+        f"Feedback on the block that just ended:\n"
         f"- Goals achieved: {goals_done or 'none'}\n"
         f"- Goals missed: {goals_missed or 'none'}\n"
         f"- Energy level: {energy}/5\n"

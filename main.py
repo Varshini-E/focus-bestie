@@ -72,6 +72,7 @@ class ReplanRequest(BaseModel):
     notes: Optional[str] = ""
     current_time: str
     time_spent_minutes: Optional[int] = None
+    day_log: Optional[List[dict]] = []
 
 class VoiceGreetRequest(BaseModel):
     block: dict
@@ -81,6 +82,9 @@ class VoiceRespondRequest(BaseModel):
     conversation: List[dict]
     user_text: str
     block: dict
+    is_session_end_reply: bool = False
+    is_goals_message: bool = False
+    is_mid_session: bool = False
 
 
 class VoiceSummarizeRequest(BaseModel):
@@ -137,6 +141,7 @@ def replan(req: ReplanRequest):
             notes=req.notes or "",
             current_time=req.current_time,
             time_spent_minutes=req.time_spent_minutes,
+            day_log=req.day_log or [],
         )
         append_log({
             "timestamp": datetime.now().isoformat(),
@@ -167,7 +172,7 @@ def voice_greet(req: VoiceGreetRequest):
 @app.post("/api/voice/respond")
 def voice_respond(req: VoiceRespondRequest):
     try:
-        text  = chat_respond(req.conversation, req.user_text, req.block)
+        text  = chat_respond(req.conversation, req.user_text, req.block, req.is_session_end_reply, req.is_goals_message, req.is_mid_session)
         audio = text_to_speech(text)
         return {"text": text, "audio": audio}
     except Exception as e:

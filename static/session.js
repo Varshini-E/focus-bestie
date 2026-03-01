@@ -12,13 +12,15 @@ const ENERGY_LABELS = { 1: "Drained",  2: "Low",      3: "Neutral",  4: "Good", 
 const LOAD_LABELS   = { 1: "Very easy", 2: "Light",    3: "Moderate", 4: "Heavy", 5: "Exhausting" };
 
 // ── Timer state ────────────────────────────────────────────────────────────────
-let timerTotal       = 0;
-let timerRemaining   = 0;
-let timerRunning     = false;
-let timerExpired     = false;
-let timerInterval    = null;
-let timerAutoStarted = false;  // true after first user message triggers auto-start
-let sessionTimeSpentMinutes = null; // how long user actually spent in this block
+let timerTotal              = 0;
+let timerRemaining          = 0;
+let timerRunning            = false;
+let timerExpired            = false;
+let timerInterval           = null;
+let timerAutoStarted        = false;
+let sessionTimeSpentMinutes = null;
+let awaitingSessionEndReply = false;  // true after timer ends, coach asked "what did you do?"
+let hadTimerEndConvo        = false;  // true after user replied to the session-end question
 
 // ── Speech recognition ─────────────────────────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -51,32 +53,40 @@ function $(id) { return document.getElementById(id); }
 
 function setState(s) {
   appState = s;
-  const busy = s === "processing" || s === "speaking";
-  $("mic-btn").disabled      = busy;
-  $("text-input").disabled   = busy;
-  $("send-btn").disabled     = busy;
-  $("complete-btn").disabled = busy;
-  const endBtn = $("end-session-btn");
-  if (endBtn) endBtn.disabled = busy;
+  // Mic is always enabled except while processing (API call in flight)
+  $("mic-btn").disabled      = s === "processing";
+  $("text-input").disabled   = s === "processing" || s === "speaking";
+  $("send-btn").disabled     = s === "processing" || s === "speaking";
+  $("complete-btn").disabled = s === "processing" || s === "speaking";
 
   const bar = $("state-bar");
   bar.className = "state-bar " + (s === "listening" ? "listening" : s === "speaking" ? "speaking" : "");
 
+  const waveform = $("waveform");
+  const label    = $("state-label");
+
   if (s === "listening") {
     $("mic-btn").classList.add("listening");
     $("mic-btn").textContent = "■";
-    bar.textContent = "Listening…";
+    waveform.classList.remove("active");
+    label.textContent = "Listening…";
   } else {
     $("mic-btn").classList.remove("listening");
     $("mic-btn").textContent = "🎙️";
-    bar.textContent = s === "speaking" ? "Speaking…" : s === "processing" ? "Thinking…" : "";
+    if (s === "speaking") {
+      waveform.classList.add("active");
+      label.textContent = "";
+    } else {
+      waveform.classList.remove("active");
+      label.textContent = s === "processing" ? "Thinking…" : "";
+    }
   }
 }
 
 function setStateLabel(text, cls) {
-  const el = $("state-bar");
-  el.textContent = text;
-  el.className   = "state-bar " + (cls || "");
+  $("state-bar").className = "state-bar " + (cls || "");
+  $("waveform").classList.remove("active");
+  $("state-label").textContent = text;
 }
 
 // ── Transcript ─────────────────────────────────────────────────────────────────
@@ -141,17 +151,37 @@ function restoreTranscript() {
 }
 
 // ── Audio ──────────────────────────────────────────────────────────────────────
+let currentAudio        = null;
+let currentAudioResolve = null;
+
 function playAudio(base64) {
   if (!base64) return Promise.resolve();
   return new Promise((resolve) => {
     const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     const blob  = new Blob([bytes], { type: "audio/mpeg" });
     const url   = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
-    audio.onerror = resolve;
-    audio.play().catch(resolve);
+    currentAudio        = new Audio(url);
+    currentAudioResolve = resolve;
+    currentAudio.onended = () => {
+      URL.revokeObjectURL(url);
+      currentAudio = null; currentAudioResolve = null;
+      resolve();
+    };
+    currentAudio.onerror = () => {
+      currentAudio = null; currentAudioResolve = null;
+      resolve();
+    };
+    currentAudio.play().catch(() => {
+      currentAudio = null; currentAudioResolve = null;
+      resolve();
+    });
   });
+}
+
+// Stop ongoing audio and resolve the pending promise so callers continue
+function stopAudio() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (currentAudioResolve) { currentAudioResolve(); currentAudioResolve = null; }
 }
 
 // ── API calls ──────────────────────────────────────────────────────────────────
@@ -165,11 +195,22 @@ async function fetchGreeting() {
   return res.json();
 }
 
-async function fetchRespond(userText) {
+async function fetchRespond(userText, isSessionEndReply = false) {
+  // Goals message = first user message, before timer has auto-started
+  const isGoalsMessage = !timerAutoStarted && !isSessionEndReply;
+  // Mid-session = timer running, not the first message, not end-reply
+  const isMidSession   = timerAutoStarted && timerRunning && !isSessionEndReply;
   const res = await fetch("/api/voice/respond", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation, user_text: userText, block }),
+    body: JSON.stringify({
+      conversation,
+      user_text: userText,
+      block,
+      is_session_end_reply: isSessionEndReply,
+      is_goals_message: isGoalsMessage,
+      is_mid_session: isMidSession,
+    }),
   });
   if (!res.ok) throw new Error((await res.json()).detail || "Respond failed");
   return res.json();
@@ -182,16 +223,6 @@ async function fetchSummarize() {
     body: JSON.stringify({ conversation, block }),
   });
   if (!res.ok) throw new Error((await res.json()).detail || "Summarize failed");
-  return res.json();
-}
-
-async function fetchWrapup(timeSpentMins) {
-  const res = await fetch("/api/voice/wrapup", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation, block, time_spent_minutes: timeSpentMins }),
-  });
-  if (!res.ok) throw new Error((await res.json()).detail || "Wrapup failed");
   return res.json();
 }
 
@@ -215,7 +246,9 @@ async function fetchInitiation() {
   return res.json();
 }
 
-async function fetchReplan(summary, timeSpentMins) {
+async function fetchReplan(summary) {
+  // Include previous sessions' history (current session is passed explicitly below)
+  const dayLog = JSON.parse(sessionStorage.getItem("dayLog") || "[]");
   const res = await fetch("/replan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -227,17 +260,49 @@ async function fetchReplan(summary, timeSpentMins) {
       energy:             selectedEnergy,
       cognitive_load:     selectedLoad,
       notes:              summary.notes        || "",
-      time_spent_minutes: timeSpentMins ?? null,
       current_time:       nowHHMM(),
+      day_log:            dayLog,
     }),
   });
   if (!res.ok) throw new Error((await res.json()).detail || "Replan failed");
   return res.json();
 }
 
+function saveToDayLog(summary) {
+  const entry = {
+    block_title:  block.title,
+    block_start:  block.start,
+    block_end:    block.end,
+    time_spent:   sessionTimeSpentMinutes,
+    energy:       selectedEnergy,
+    load:         selectedLoad,
+    goals_done:   summary?.goals_done   || [],
+    goals_missed: summary?.goals_missed || [],
+    notes:        summary?.notes        || "",
+  };
+  const dayLog = JSON.parse(sessionStorage.getItem("dayLog") || "[]");
+  dayLog.push(entry);
+  sessionStorage.setItem("dayLog", JSON.stringify(dayLog));
+}
+
 function nowHHMM() {
   const d = new Date();
   return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+// ── Time helpers ───────────────────────────────────────────────────────────────
+function timeToMins(t) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function minsToTime(mins) {
+  const clamped = ((mins % 1440) + 1440) % 1440;
+  return `${String(Math.floor(clamped / 60)).padStart(2,"0")}:${String(clamped % 60).padStart(2,"0")}`;
+}
+
+function addMinsToTime(t, delta) {
+  return minsToTime(timeToMins(t) + delta);
 }
 
 // ── Timer ──────────────────────────────────────────────────────────────────────
@@ -274,9 +339,10 @@ function startTimer() {
 }
 
 function endTimer() {
-  // Manually end the session early (same effect as timer expiring)
+  // User manually clicked "End" — compute exact time spent
   if (!timerRunning) return;
-  const timeSpentMins = Math.round((timerTotal - timerRemaining) / 60);
+  const elapsed = timerTotal - timerRemaining;
+  const timeSpentMins = Math.max(Math.round(elapsed / 60), 0);
   clearInterval(timerInterval);
   timerRunning = false;
   timerExpired = true;
@@ -313,16 +379,15 @@ function updateTimerBtns() {
   $("stop-timer-btn").disabled  = !timerRunning;
 }
 
+// Called when timer reaches zero (naturally) or endTimer() fires
 async function onTimerEnd(timeSpentMins) {
-  // If timer expired naturally, full duration was spent
+  // If natural expiry, full duration was spent
   const spent = timeSpentMins ?? Math.round(timerTotal / 60);
   sessionTimeSpentMinutes = spent;
   saveState();
 
-  // If they bailed within the first minute, skip voice check-in
-  if (spent <= 1) {
-    return;
-  }
+  if (spent === 0) return;  // No time spent at all — skip voice check-in
+
   setState("processing");
   showTyping();
   try {
@@ -331,13 +396,15 @@ async function onTimerEnd(timeSpentMins) {
     conversation.push({ role: "assistant", content: text });
     setState("speaking");
     await playAudio(audio);
-    setState("idle");
+    if (appState !== "listening") setState("idle");
+    awaitingSessionEndReply = true;
   } catch (e) {
     removeTyping();
-    const fallback = `Time's up for "${block.title}"! Great work — how did it go? Tell me what you accomplished.`;
+    const fallback = `Time's up for "${block.title}"! What did you get done?`;
     addMessage("assistant", fallback);
     conversation.push({ role: "assistant", content: fallback });
     setState("idle");
+    awaitingSessionEndReply = true;
   }
 }
 
@@ -363,7 +430,8 @@ function selectEnergy(val) {
 
 // ── Conversation flow ──────────────────────────────────────────────────────────
 async function sendUserMessage(text) {
-  const isFirstUserMessage = !timerAutoStarted;
+  const isFirstUserMessage    = !timerAutoStarted;
+  const wasAwaitingSessionEnd = awaitingSessionEndReply;
 
   setState("processing");
   addMessage("user", text);
@@ -371,17 +439,24 @@ async function sendUserMessage(text) {
 
   showTyping();
   try {
-    const { text: replyText, audio } = await fetchRespond(text);
+    const { text: replyText, audio } = await fetchRespond(text, wasAwaitingSessionEnd);
     addMessage("assistant", replyText);
     conversation.push({ role: "assistant", content: replyText });
     setState("speaking");
     await playAudio(audio);
-    setState("idle");
+    if (appState !== "listening") setState("idle");
 
     // Auto-start timer after first user message (goals stated)
     if (isFirstUserMessage && !timerRunning && !timerExpired) {
       timerAutoStarted = true;
       startTimer();
+    }
+
+    // Mark that the post-timer conversation has happened
+    if (wasAwaitingSessionEnd) {
+      awaitingSessionEndReply = false;
+      hadTimerEndConvo        = true;
+      saveState();
     }
   } catch (e) {
     removeTyping();
@@ -395,7 +470,8 @@ function toggleMic() {
   if (appState === "listening") {
     recognition.stop();
     setState("idle");
-  } else if (appState === "idle") {
+  } else if (appState === "idle" || appState === "speaking") {
+    stopAudio();           // interrupt agent if speaking
     setState("listening");
     recognition.start();
   }
@@ -409,42 +485,85 @@ function sendText() {
   sendUserMessage(text);
 }
 
-// ── Complete session ───────────────────────────────────────────────────────────
-async function completeSession() {
-  setState("processing");
-  setStateLabel("Wrapping up…", "");
+// ── Complete & Replan ──────────────────────────────────────────────────────────
+// Two paths:
+//   hadTimerEndConvo = true  → AI summarise + replan → redirect home
+//   hadTimerEndConvo = false → shift remaining block timings client-side → redirect home
+async function completeAndReplan() {
+  // Stop the timer if it's still running
+  if (timerRunning) {
+    const elapsed = timerTotal - timerRemaining;
+    sessionTimeSpentMinutes = Math.max(Math.round(elapsed / 60), 0);
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerExpired = true;
+    $("timer-display").classList.remove("running");
+    $("timer-display").classList.add("done");
+    updateTimerBtns();
+    saveState();
+  }
 
-  try {
-    const summary = await fetchSummarize();
-    setStateLabel("Replanning your day…", "");
-    const newPlan = await fetchReplan(summary);
+  if (hadTimerEndConvo) {
+    // Full AI replan
+    setState("processing");
+    setStateLabel("Wrapping up…", "");
+    try {
+      const summary = await fetchSummarize();
+      setStateLabel("Replanning your day…", "");
+      // Fetch replan first (dayLog holds previous sessions only)
+      const newPlan = await fetchReplan(summary);
+      // Then save this session to the day log so subsequent replans have the full history
+      saveToDayLog(summary);
+
+      const completedSoFar = JSON.parse(sessionStorage.getItem("completedBlocks") || "[]");
+      completedSoFar.push(block);
+      sessionStorage.setItem("completedBlocks", JSON.stringify(completedSoFar));
+      sessionStorage.setItem("newPlan", JSON.stringify(newPlan));
+      if (block) sessionStorage.removeItem(`sess_${block.id}`);
+      window.location.href = "/";
+    } catch (e) {
+      setStateLabel("Error: " + e.message, "");
+      setState("idle");
+    }
+  } else {
+    // No post-timer chat — shift remaining blocks client-side and log the session
+    const adjustedPlan = shiftRemainingBlocks();
+    saveToDayLog(null);  // no summary available, log with empty goals
 
     const completedSoFar = JSON.parse(sessionStorage.getItem("completedBlocks") || "[]");
     completedSoFar.push(block);
     sessionStorage.setItem("completedBlocks", JSON.stringify(completedSoFar));
-    sessionStorage.setItem("newPlan", JSON.stringify(newPlan));
-
-    // Clear saved session state for this block
+    sessionStorage.setItem("newPlan", JSON.stringify(adjustedPlan));
     if (block) sessionStorage.removeItem(`sess_${block.id}`);
-
     window.location.href = "/";
-  } catch (e) {
-    setStateLabel("Error: " + e.message, "");
-    setState("idle");
   }
+}
+
+// Shift blocks that come after this block based on how much earlier/later we're finishing
+function shiftRemainingBlocks() {
+  const now          = nowHHMM();
+  const nowMins      = timeToMins(now);
+  const blockEndMins = timeToMins(block.end);
+  const delta        = nowMins - blockEndMins;  // positive = running late, negative = finished early
+
+  const updatedBlocks = (currentPlan?.blocks || [])
+    .filter(b => b.id !== block.id)
+    .map(b => {
+      if (delta !== 0 && timeToMins(b.start) >= blockEndMins) {
+        return { ...b, start: addMinsToTime(b.start, delta), end: addMinsToTime(b.end, delta) };
+      }
+      return b;
+    });
+
+  return { ...currentPlan, blocks: updatedBlocks };
 }
 
 // ── State persistence ──────────────────────────────────────────────────────────
 function saveState() {
   if (!block) return;
   sessionStorage.setItem(`sess_${block.id}`, JSON.stringify({
-    conversation,
-    timerRemaining,
-    timerExpired,
-    selectedEnergy,
-    selectedLoad,
-    timerAutoStarted,
-    sessionTimeSpentMinutes,
+    conversation, timerRemaining, timerExpired, selectedEnergy, selectedLoad,
+    timerAutoStarted, sessionTimeSpentMinutes, hadTimerEndConvo,
   }));
 }
 
@@ -457,17 +576,14 @@ function loadState() {
 // ── Back navigation ────────────────────────────────────────────────────────────
 function goBack() {
   const storedPlan = sessionStorage.getItem("currentPlan");
-  if (storedPlan) {
-    sessionStorage.setItem("returnedPlan", storedPlan);
-    // completedBlocks already stored; leave it in place for home page
-  }
+  if (storedPlan) sessionStorage.setItem("returnedPlan", storedPlan);
   window.location.href = "/";
 }
 
 // ── Task initiation overlay ────────────────────────────────────────────────────
-let savedTimerRemaining  = 0;
-let initiationInterval   = null;
-let initiationRemaining  = 120;
+let savedTimerRemaining = 0;
+let initiationInterval  = null;
+let initiationRemaining = 120;
 
 function renderInitTimer() {
   const m = Math.floor(initiationRemaining / 60);
@@ -498,20 +614,19 @@ async function openInitiation() {
   }
   savedTimerRemaining = timerRemaining;
 
-  // Reset overlay state
+  // Reset overlay to initial state
   initiationRemaining = 120;
   renderInitTimer();
   const headingEl   = $("initiation-heading");
   const endBtn      = $("initiation-end-btn");
   const continueBtn = $("initiation-continue-btn");
-  if (headingEl) headingEl.textContent = "Just 2 minutes ✦";
-  if (endBtn) endBtn.style.display = "block";
+  if (headingEl)   headingEl.textContent     = "Just 2 minutes ✦";
+  if (endBtn)      endBtn.style.display      = "block";
   if (continueBtn) continueBtn.style.display = "none";
   $("initiation-text").textContent      = "Loading…";
   $("initiation-breakdown").innerHTML   = "";
   $("initiation-overlay").style.display = "flex";
 
-  // Fetch spoken text + breakdown
   try {
     const { text, audio, breakdown } = await fetchInitiation();
     $("initiation-text").textContent = text;
@@ -531,121 +646,32 @@ async function openInitiation() {
   }
 }
 
-async function onInitiationTimerEnd() {
-  // Timer finished: keep overlay open and show "Nice job!" + Go back button
+function onInitiationTimerEnd() {
+  // Keep overlay open — show "Nice job!" and the Continue button
   const headingEl   = $("initiation-heading");
   const endBtn      = $("initiation-end-btn");
   const continueBtn = $("initiation-continue-btn");
-  if (headingEl) headingEl.textContent = "Nice job!";
-  if (endBtn) endBtn.style.display = "none";
+  if (headingEl)   headingEl.textContent     = "Nice job! ✓";
+  if (endBtn)      endBtn.style.display      = "none";
   if (continueBtn) continueBtn.style.display = "block";
 }
 
-function closeInitiation() {
-  clearInterval(initiationInterval);
-  $("initiation-overlay").style.display = "none";
-}
-
+// "Go back to session" — closes overlay, restores timer from before initiation
 function closeInitiationEarly() {
   clearInterval(initiationInterval);
   $("initiation-overlay").style.display = "none";
-  // Return to the main session — resume timer from where it was
   timerRemaining = savedTimerRemaining;
   renderTimerDisplay();
-  if (!timerExpired && timerRemaining > 0) {
-    startTimer();
-  }
+  if (!timerExpired && timerRemaining > 0) startTimer();
 }
 
-async function continueAfterInitiation() {
+// "Continue" (shown after "Nice job!") — deducts 2 min from timer and resumes
+function continueAfterInitiation() {
   $("initiation-overlay").style.display = "none";
-
-  // Deduct the 2 minutes from the main timer
   timerRemaining = Math.max(savedTimerRemaining - 120, 0);
   renderTimerDisplay();
   saveState();
-
-  // Immediately continue the main timer
-  if (!timerExpired && timerRemaining > 0) {
-    startTimer();
-  }
-}
-
-function resumeAfterInitiation() {
-  $("resume-timer-btn").style.display = "none";
-  if (timerRemaining > 0 && !timerExpired) {
-    startTimer();
-  }
-}
-
-// ── Wrap-up flow ───────────────────────────────────────────────────────────────
-async function initiateWrapUp() {
-  // Stop timer without triggering the normal timer-end voice
-  let spentMins = sessionTimeSpentMinutes;
-  if (timerRunning) {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    const elapsed = timerTotal - timerRemaining;
-    spentMins = Math.max(Math.round(elapsed / 60), 0);
-    timerExpired = true;
-    $("timer-display").classList.remove("running");
-    $("timer-display").classList.add("done");
-    updateTimerBtns();
-    saveState();
-  }
-
-  if (spentMins != null) {
-    sessionTimeSpentMinutes = spentMins;
-    saveState();
-  }
-
-  setState("processing");
-  setStateLabel("Checking in on your session…", "");
-  showTyping();
-  try {
-    const { text, audio } = await fetchWrapup(spentMins);
-    addMessage("assistant", text);
-    conversation.push({ role: "assistant", content: text });
-    setState("speaking");
-    await playAudio(audio);
-    setState("idle");
-  } catch (e) {
-    removeTyping();
-    const fallback = "Let's wrap up this block. Tell me what you got done, then hit End Session when you're ready to replan.";
-    addMessage("assistant", fallback);
-    conversation.push({ role: "assistant", content: fallback });
-    setState("idle");
-  }
-
-  // Swap buttons: hide \"Complete & Replan\" and show \"End Session & Replan\"
-  const completeBtn = $("complete-btn");
-  const endBtn = $("end-session-btn");
-  if (completeBtn) completeBtn.style.display = "none";
-  if (endBtn)      endBtn.style.display = "block";
-}
-
-async function endSessionReplan() {
-  setState("processing");
-  setStateLabel("Wrapping up…", "");
-
-  try {
-    const summary = await fetchSummarize();
-    setStateLabel("Replanning your day…", "");
-    const newPlan = await fetchReplan(summary, sessionTimeSpentMinutes);
-
-    const completedSoFar = JSON.parse(sessionStorage.getItem("completedBlocks") || "[]");
-    completedSoFar.push(block);
-    sessionStorage.setItem("completedBlocks", JSON.stringify(completedSoFar));
-    sessionStorage.setItem("newPlan", JSON.stringify(newPlan));
-
-    // Clear saved session state for this block
-    if (block) sessionStorage.removeItem(`sess_${block.id}`);
-
-    window.location.href = "/";
-  } catch (e) {
-    setStateLabel("Error: " + e.message, "");
-    setState("idle");
-  }
+  if (!timerExpired && timerRemaining > 0) startTimer();
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────────
@@ -667,19 +693,18 @@ async function init() {
 
   if (!hasSpeech) $("mic-btn").classList.add("no-speech");
 
-  // Init timer (sets timerTotal from block duration)
   initTimer();
 
-  // Restore saved session if available
   const saved = loadState();
   if (saved && saved.conversation?.length > 0) {
-    conversation     = saved.conversation;
-    timerRemaining   = saved.timerRemaining  ?? timerTotal;
-    timerExpired     = saved.timerExpired    ?? false;
-    selectedEnergy   = saved.selectedEnergy  ?? 3;
-    selectedLoad     = saved.selectedLoad    ?? 3;
-    timerAutoStarted = saved.timerAutoStarted ?? false;
+    conversation            = saved.conversation;
+    timerRemaining          = saved.timerRemaining          ?? timerTotal;
+    timerExpired            = saved.timerExpired            ?? false;
+    selectedEnergy          = saved.selectedEnergy          ?? 3;
+    selectedLoad            = saved.selectedLoad            ?? 3;
+    timerAutoStarted        = saved.timerAutoStarted        ?? false;
     sessionTimeSpentMinutes = saved.sessionTimeSpentMinutes ?? null;
+    hadTimerEndConvo        = saved.hadTimerEndConvo        ?? false;
 
     renderTimerDisplay();
     updateTimerBtns();
@@ -696,7 +721,7 @@ async function init() {
     return;
   }
 
-  // Fresh session — greet immediately without prompting
+  // Fresh session — greet immediately
   setState("processing");
   showTyping();
   try {
@@ -705,7 +730,7 @@ async function init() {
     conversation.push({ role: "assistant", content: text });
     setState("speaking");
     await playAudio(audio);
-    setState("idle");
+    if (appState !== "listening") setState("idle");
   } catch (e) {
     removeTyping();
     setStateLabel("Could not load greeting: " + e.message, "");

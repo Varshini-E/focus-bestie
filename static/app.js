@@ -121,39 +121,40 @@ async function generatePlan() {
 }
 
 // ── Replan from now ────────────────────────────────────────────────────────────
-async function replanNow() {
-  if (!currentPlan) {
-    return setStatus("No plan to replan yet.", true);
+// Pure client-side shift — no AI call. Snaps remaining blocks to start from now
+// (rounded to next 15-min mark) and removes any that no longer fit before day_end.
+function replanNow() {
+  if (!currentPlan || !currentPlan.blocks?.length) {
+    return setStatus("No remaining blocks to shift.", true);
   }
 
-  const btn = $("replan-btn");
-  if (btn) btn.disabled = true;
-  setStatus("Replanning from now…");
+  const nowMins   = timeToMins(nowHHMM());
+  // Round up to next 15-min slot
+  const snapMins  = Math.ceil(nowMins / 15) * 15;
+  const firstMins = timeToMins(currentPlan.blocks[0].start);
+  const delta     = snapMins - firstMins;
 
-  try {
-    const res = await fetch("/replan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        current_plan:       currentPlan,
-        completed_block_id: "",
-        goals_done:         [],
-        goals_missed:       [],
-        energy:             3,
-        cognitive_load:     null,
-        notes:              "",
-        current_time:       nowHHMM(),
-      }),
+  if (delta === 0) return setStatus("Schedule is already current.", true);
+
+  const dayEndMins = timeToMins(currentPlan.day_end);
+
+  const shifted = currentPlan.blocks
+    .map(b => ({ ...b, start: addMins(b.start, delta), end: addMins(b.end, delta) }))
+    .filter(b => timeToMins(b.start) < dayEndMins)
+    .map((b, i, arr) => {
+      // Trim the last block's end if it overflows
+      if (i === arr.length - 1 && timeToMins(b.end) > dayEndMins) {
+        return { ...b, end: currentPlan.day_end };
+      }
+      return b;
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.detail || "Request failed");
-    renderPlan(data);
-    setStatus("Plan updated for the rest of the day.");
-  } catch (e) {
-    setStatus("Error: " + e.message, true);
-  } finally {
-    if (btn) btn.disabled = false;
+
+  if (shifted.length === 0) {
+    return setStatus("No blocks fit within the remaining day window.", true);
   }
+
+  renderPlan({ ...currentPlan, blocks: shifted });
+  setStatus(delta > 0 ? "Shifted schedule forward." : "Shifted schedule back.");
 }
 
 // ── Day summary modal ──────────────────────────────────────────────────────────
@@ -381,14 +382,54 @@ function renderPlan(plan) {
     });
   });
 
-  // Task block click → navigate to session
+  // Task block click → navigate to session.
+  // Always adjust block.start to now so the timer reflects actual remaining time.
+  // Three cases:
+  //   Early  (now < scheduled start) → start=now, end=now+duration (full time, no block shifting)
+  //   Late   (now inside window)     → start=now, end=original end (less time), shift later blocks
+  //   Past   (now >= block end)      → start=now, end=now+duration (fresh session, no shifting)
   el.querySelectorAll(".block.clickable").forEach(blockEl => {
     blockEl.addEventListener("click", (e) => {
       if (e.target.classList.contains("block-time-input")) return;
-      const block = currentPlan.blocks.find(b => b.id === blockEl.dataset.blockId);
-      if (!block) return;
-      sessionStorage.setItem("activeBlock",     JSON.stringify(block));
-      sessionStorage.setItem("currentPlan",     JSON.stringify(currentPlan));
+      const foundBlock = currentPlan.blocks.find(b => b.id === blockEl.dataset.blockId);
+      if (!foundBlock) return;
+
+      const now            = nowHHMM();
+      const nowMins        = timeToMins(now);
+      const blockStartMins = timeToMins(foundBlock.start);
+      const blockEndMins   = timeToMins(foundBlock.end);
+      const durationMins   = blockEndMins - blockStartMins;
+
+      const isLate = nowMins > blockStartMins && nowMins < blockEndMins;
+
+      // Late → keep original end (timer = remaining window in the scheduled slot)
+      // Early or past → add full original duration from now
+      const newEnd      = isLate ? foundBlock.end : addMins(now, durationMins);
+      const activeBlock = { ...foundBlock, start: now, end: newEnd };
+
+      // Only shift subsequent blocks when running late
+      let planToStore;
+      if (isLate) {
+        const delta = nowMins - blockStartMins;
+        planToStore = {
+          ...currentPlan,
+          blocks: currentPlan.blocks.map(b => {
+            if (b.id === foundBlock.id) return activeBlock;
+            if (timeToMins(b.start) > blockStartMins) {
+              return { ...b, start: addMins(b.start, delta), end: addMins(b.end, delta) };
+            }
+            return b;
+          }),
+        };
+      } else {
+        planToStore = {
+          ...currentPlan,
+          blocks: currentPlan.blocks.map(b => b.id === foundBlock.id ? activeBlock : b),
+        };
+      }
+
+      sessionStorage.setItem("activeBlock",     JSON.stringify(activeBlock));
+      sessionStorage.setItem("currentPlan",     JSON.stringify(planToStore));
       sessionStorage.setItem("completedBlocks", JSON.stringify(completedBlocks));
       window.location.href = "/session";
     });

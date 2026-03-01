@@ -13,17 +13,19 @@ ELEVENLABS_KEY  = os.environ.get("ELEVENLABS_API_KEY", "")
 VOICE_ID        = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel
 CHAT_MODEL      = "ministral-8b-latest"
 
-COACH_SYSTEM = """You are an upbeat, focused ADHD coach helping someone work through a session.
-Keep every response to 2-3 short sentences. Be warm and direct — no bullet lists, no fluff.
+COACH_SYSTEM = """You are a body doubling agent — a calm, warm, upbeat presence helping someone with ADHD work through a focused session.
+Keep every response to 2-3 short sentences. Be warm, direct, and human — no bullet lists, no fluff.
 Speak naturally as if you are in a voice conversation. Never use markdown, asterisks, or special characters.
-When the user tells you their goals for the session: acknowledge with energy, say their timer is starting now, then give ONE brief concrete tip on exactly how to begin immediately. Do not ask any follow-up questions."""
+When the user tells you their goals at the start of a session: wish them luck and say their timer is starting. Two sentences only — no extra tips, no questions.
+Mid-session when the user talks to you: be their body double — present, positive, grounding. Acknowledge what they say, help them find one small next step if they're stuck, or briefly celebrate if they're making progress. Keep it short."""
 
 
 def generate_greeting(block: dict) -> str:
     prompt = (
         f"The user is about to start this block: '{block.get('title')}' "
         f"({block.get('type')}, {block.get('start')}–{block.get('end')}). "
-        "Greet them briefly and ask what specific goal(s) they want to hit this session. never use markdown formatting, asterisks, or special characters in your responses."
+        "Greet them warmly in one sentence, then ask what specific goal(s) they want to accomplish this session in one sentence. "
+        "Do NOT mention the timer at all. Never use markdown, asterisks, or special characters."
     )
     resp = mistral_client.chat.complete(
         model=CHAT_MODEL,
@@ -36,10 +38,46 @@ def generate_greeting(block: dict) -> str:
     return resp.choices[0].message.content.strip()
 
 
-def chat_respond(conversation: list[dict], user_text: str, block: dict) -> str:
+def chat_respond(
+    conversation: list[dict],
+    user_text: str,
+    block: dict,
+    is_session_end_reply: bool = False,
+    is_goals_message: bool = False,
+    is_mid_session: bool = False,
+) -> str:
     messages = [{"role": "system", "content": COACH_SYSTEM}]
     messages += conversation
-    messages.append({"role": "user", "content": user_text})
+    if is_session_end_reply:
+        messages.append({
+            "role": "user",
+            "content": (
+                f"{user_text}\n\n"
+                "[The user just told you what they completed. Commend their effort warmly in one sentence, "
+                "suggest a short break in one sentence, and tell them to click 'Complete & Replan Day' whenever they're ready.]"
+            ),
+        })
+    elif is_goals_message:
+        messages.append({
+            "role": "user",
+            "content": (
+                f"{user_text}\n\n"
+                "[The user just stated their goals for this session. Do NOT generate any content, examples, or suggestions related to the task. "
+                "Simply wish them luck in one sentence, then say their timer is starting in one sentence. Nothing else.]"
+            ),
+        })
+    elif is_mid_session:
+        messages.append({
+            "role": "user",
+            "content": (
+                f"{user_text}\n\n"
+                f"[The user said this while working on '{block.get('title')}' with their timer running. "
+                "Be their body double — present and grounding. If they sound anxious or stuck, acknowledge it warmly "
+                "and help them see one tiny next step. If they're sharing progress, celebrate briefly. 2-3 sentences max.]"
+            ),
+        })
+    else:
+        messages.append({"role": "user", "content": user_text})
     resp = mistral_client.chat.complete(
         model=CHAT_MODEL,
         messages=messages,
@@ -73,7 +111,7 @@ def summarize_session(conversation: list[dict], block: dict) -> dict:
 
 
 def generate_session_end(block: dict, conversation: list[dict], time_spent_minutes: int | None = None) -> str:
-    """Coach speaks at the end of the timer — asks how it went and suggests a break."""
+    """Coach asks what was completed when timer ends."""
     messages = [{"role": "system", "content": COACH_SYSTEM}]
     messages += conversation
     time_info = f" They spent {time_spent_minutes} minute{'s' if time_spent_minutes != 1 else ''} on this." if time_spent_minutes is not None else ""
@@ -81,8 +119,7 @@ def generate_session_end(block: dict, conversation: list[dict], time_spent_minut
         "role": "user",
         "content": (
             f"[The timer just ended for '{block.get('title')}' ({block.get('start')}–{block.get('end')}).{time_info}] "
-            "Check in warmly. Acknowledge how long they spent if known, appreciate the effort, ask what they accomplished, "
-            "and gently suggest a short break before the next block."
+            "Simply ask what they completed during this session."
         ),
     })
     resp = mistral_client.chat.complete(model=CHAT_MODEL, messages=messages, temperature=0.7)
