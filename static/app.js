@@ -536,11 +536,11 @@ window.addEventListener("DOMContentLoaded", () => {
   $("planDate").value = todayISO();
   onDateChange();
 
-  // Restore saved task list
-  const savedTasks = localStorage.getItem("anchor_tasks");
+  // Restore task list within this session only (clears when tab is closed)
+  const savedTasks = sessionStorage.getItem("anchor_tasks");
   if (savedTasks) $("tasks").value = savedTasks;
   $("tasks").addEventListener("input", () => {
-    localStorage.setItem("anchor_tasks", $("tasks").value);
+    sessionStorage.setItem("anchor_tasks", $("tasks").value);
   });
 
   // Wire up events

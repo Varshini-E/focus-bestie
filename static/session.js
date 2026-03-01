@@ -727,7 +727,7 @@ async function init() {
     selectedEnergy          = saved.selectedEnergy          ?? 3;
     selectedLoad            = saved.selectedLoad            ?? 3;
     timerAutoStarted        = saved.timerAutoStarted        ?? false;
-    timerStartedAt          = saved.timerStartedAt          ?? null;
+    timerStartedAt          = null;  // timer is not running after reload; reset so elapsed is correct
     sessionTimeSpentMinutes = saved.sessionTimeSpentMinutes ?? null;
     hadTimerEndConvo        = saved.hadTimerEndConvo        ?? false;
 
