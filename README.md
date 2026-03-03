@@ -20,6 +20,8 @@ If the day feels overwhelming, **Minimum Salvage Mode** strips everything back t
 - Anyone whose day regularly goes sideways and needs a plan that adapts rather than breaks
 - People who need help actually starting tasks
 
+[Quick overview](https://www.loom.com/share/6d735594b1c44840ac34dd7dcf46b157)
+
 ---
 
 ## Stack
