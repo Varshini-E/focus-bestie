@@ -2,6 +2,8 @@
 
 An ADHD-aware, AI-powered day planner that schedules your tasks, acts as a body doubling agent during each work session, and dynamically replans your day as things change.
 
+Built as part of the [Mistral AI Worldwide Hackathon](https://worldwide-hackathon.mistral.ai/) - San Francisco.
+
 ---
 
 ## What it does
